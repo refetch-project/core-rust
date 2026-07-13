@@ -1,0 +1,26 @@
+{
+  "specVersion": "v0.1",
+  "id": "frontier-watch",
+  "title": "Frontier Watch",
+  "task": "Rank candidates for frontier-watch",
+  "weights": {
+    "frontier": 1.0,
+    "quality": 0.2,
+    "production": -0.1
+  },
+  "filters": {
+    "sourceTypes": [
+      "github",
+      "rss"
+    ]
+  },
+  "limits": {
+    "maxItems": 5,
+    "maxPerCluster": 1
+  },
+  "policy": {
+    "tieBreaker": "candidateId-ascending",
+    "explorationBudget": 1
+  },
+  "extensions": {}
+}

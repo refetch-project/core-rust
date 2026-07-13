@@ -1,0 +1,14 @@
+[workspace]
+members = ["crates/refetch-contract", "crates/refetch-core", "crates/refetch-cli"]
+resolver = "2"
+
+[workspace.package]
+edition = "2021"
+license = "MIT"
+version = "0.1.0"
+
+[workspace.dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "1"
+clap = { version = "4", features = ["derive"] }

@@ -1,0 +1,442 @@
+[
+  {
+    "specVersion": "v0.1",
+    "id": "gh-repo-refetch-core",
+    "subject": {
+      "id": "subject:gh-repo-refetch-core",
+      "type": "Repository",
+      "title": "Refetch core-rust repository",
+      "url": "https://example.invalid/gh-repo-refetch-core"
+    },
+    "trigger": {
+      "type": "updated",
+      "occurredAt": "2026-01-01T00:00:00Z"
+    },
+    "source": {
+      "type": "github",
+      "name": "Example GITHUB"
+    },
+    "provenance": {
+      "capturedAt": "2026-01-15T00:00:00Z",
+      "adapter": "fixture-adapter",
+      "adapterVersion": "0.1.0"
+    },
+    "evidence": [
+      {
+        "id": "ev:gh-repo-refetch-core:meta",
+        "kind": "metadata",
+        "label": "maintained rust feed engine"
+      },
+      {
+        "id": "ev:gh-repo-refetch-core:body",
+        "kind": "content",
+        "label": "fixture body"
+      }
+    ],
+    "sourceSignals": {
+      "quality": 0.8,
+      "activity": 0.4
+    },
+    "extensions": {
+      "example.fixture": {
+        "stable": true
+      }
+    }
+  },
+  {
+    "specVersion": "v0.1",
+    "id": "gh-release-parser-120",
+    "subject": {
+      "id": "subject:gh-release-parser-120",
+      "type": "Release",
+      "title": "Parser 1.2.0 release",
+      "url": "https://example.invalid/gh-release-parser-120"
+    },
+    "trigger": {
+      "type": "updated",
+      "occurredAt": "2026-01-02T00:00:00Z"
+    },
+    "source": {
+      "type": "github",
+      "name": "Example GITHUB"
+    },
+    "provenance": {
+      "capturedAt": "2026-01-15T00:00:00Z",
+      "adapter": "fixture-adapter",
+      "adapterVersion": "0.1.0"
+    },
+    "evidence": [
+      {
+        "id": "ev:gh-release-parser-120:meta",
+        "kind": "metadata",
+        "label": "stable parser release with migration notes"
+      },
+      {
+        "id": "ev:gh-release-parser-120:body",
+        "kind": "content",
+        "label": "fixture body"
+      }
+    ],
+    "sourceSignals": {
+      "quality": 0.9,
+      "activity": 0.45
+    },
+    "extensions": {
+      "example.fixture": {
+        "stable": true
+      }
+    }
+  },
+  {
+    "specVersion": "v0.1",
+    "id": "gh-issue-good-first",
+    "subject": {
+      "id": "subject:gh-issue-good-first",
+      "type": "Issue",
+      "title": "Good first adapter issue",
+      "url": "https://example.invalid/gh-issue-good-first"
+    },
+    "trigger": {
+      "type": "updated",
+      "occurredAt": "2026-01-03T00:00:00Z"
+    },
+    "source": {
+      "type": "github",
+      "name": "Example GITHUB"
+    },
+    "provenance": {
+      "capturedAt": "2026-01-15T00:00:00Z",
+      "adapter": "fixture-adapter",
+      "adapterVersion": "0.1.0"
+    },
+    "evidence": [
+      {
+        "id": "ev:gh-issue-good-first:meta",
+        "kind": "metadata",
+        "label": "well scoped adapter task"
+      },
+      {
+        "id": "ev:gh-issue-good-first:body",
+        "kind": "content",
+        "label": "fixture body"
+      }
+    ],
+    "sourceSignals": {
+      "quality": 0.7,
+      "activity": 0.5
+    },
+    "extensions": {
+      "example.fixture": {
+        "stable": true
+      }
+    }
+  },
+  {
+    "specVersion": "v0.1",
+    "id": "gh-discussion-graph",
+    "subject": {
+      "id": "subject:gh-discussion-graph",
+      "type": "Discussion",
+      "title": "Graph ranking discussion",
+      "url": "https://example.invalid/gh-discussion-graph"
+    },
+    "trigger": {
+      "type": "updated",
+      "occurredAt": "2026-01-04T00:00:00Z"
+    },
+    "source": {
+      "type": "github",
+      "name": "Example GITHUB"
+    },
+    "provenance": {
+      "capturedAt": "2026-01-15T00:00:00Z",
+      "adapter": "fixture-adapter",
+      "adapterVersion": "0.1.0"
+    },
+    "evidence": [
+      {
+        "id": "ev:gh-discussion-graph:meta",
+        "kind": "metadata",
+        "label": "new graph ranking idea"
+      },
+      {
+        "id": "ev:gh-discussion-graph:body",
+        "kind": "content",
+        "label": "fixture body"
+      }
+    ],
+    "sourceSignals": {
+      "quality": 0.6,
+      "activity": 0.55
+    },
+    "extensions": {
+      "example.fixture": {
+        "stable": true
+      }
+    }
+  },
+  {
+    "specVersion": "v0.1",
+    "id": "rss-article-local-first",
+    "subject": {
+      "id": "subject:rss-article-local-first",
+      "type": "Article",
+      "title": "Local-first feeds article",
+      "url": "https://example.invalid/rss-article-local-first"
+    },
+    "trigger": {
+      "type": "published",
+      "occurredAt": "2026-01-05T00:00:00Z"
+    },
+    "source": {
+      "type": "rss",
+      "name": "Example RSS"
+    },
+    "provenance": {
+      "capturedAt": "2026-01-15T00:00:00Z",
+      "adapter": "fixture-adapter",
+      "adapterVersion": "0.1.0"
+    },
+    "evidence": [
+      {
+        "id": "ev:rss-article-local-first:meta",
+        "kind": "metadata",
+        "label": "practical local-first design article"
+      },
+      {
+        "id": "ev:rss-article-local-first:body",
+        "kind": "content",
+        "label": "fixture body"
+      }
+    ],
+    "sourceSignals": {
+      "quality": 0.75,
+      "activity": 0.6
+    },
+    "extensions": {
+      "example.fixture": {
+        "stable": true
+      }
+    }
+  },
+  {
+    "specVersion": "v0.1",
+    "id": "rss-announcement-engine",
+    "subject": {
+      "id": "subject:rss-announcement-engine",
+      "type": "VersionAnnouncement",
+      "title": "Engine 0.4 announcement",
+      "url": "https://example.invalid/rss-announcement-engine"
+    },
+    "trigger": {
+      "type": "published",
+      "occurredAt": "2026-01-06T00:00:00Z"
+    },
+    "source": {
+      "type": "rss",
+      "name": "Example RSS"
+    },
+    "provenance": {
+      "capturedAt": "2026-01-15T00:00:00Z",
+      "adapter": "fixture-adapter",
+      "adapterVersion": "0.1.0"
+    },
+    "evidence": [
+      {
+        "id": "ev:rss-announcement-engine:meta",
+        "kind": "metadata",
+        "label": "version announcement with tests"
+      },
+      {
+        "id": "ev:rss-announcement-engine:body",
+        "kind": "content",
+        "label": "fixture body"
+      }
+    ],
+    "sourceSignals": {
+      "quality": 0.85,
+      "activity": 0.65
+    },
+    "extensions": {
+      "example.fixture": {
+        "stable": true
+      }
+    }
+  },
+  {
+    "specVersion": "v0.1",
+    "id": "gh-release-alpha",
+    "subject": {
+      "id": "subject:gh-release-alpha",
+      "type": "Release",
+      "title": "Experimental alpha release",
+      "url": "https://example.invalid/gh-release-alpha"
+    },
+    "trigger": {
+      "type": "updated",
+      "occurredAt": "2026-01-07T00:00:00Z"
+    },
+    "source": {
+      "type": "github",
+      "name": "Example GITHUB"
+    },
+    "provenance": {
+      "capturedAt": "2026-01-15T00:00:00Z",
+      "adapter": "fixture-adapter",
+      "adapterVersion": "0.1.0"
+    },
+    "evidence": [
+      {
+        "id": "ev:gh-release-alpha:meta",
+        "kind": "metadata",
+        "label": "novel analyzer plugin alpha"
+      },
+      {
+        "id": "ev:gh-release-alpha:body",
+        "kind": "content",
+        "label": "fixture body"
+      }
+    ],
+    "sourceSignals": {
+      "quality": 0.5,
+      "activity": 0.7
+    },
+    "extensions": {
+      "example.fixture": {
+        "stable": true
+      }
+    }
+  },
+  {
+    "specVersion": "v0.1",
+    "id": "rss-article-vectorless",
+    "subject": {
+      "id": "subject:rss-article-vectorless",
+      "type": "Article",
+      "title": "Vectorless discovery article",
+      "url": "https://example.invalid/rss-article-vectorless"
+    },
+    "trigger": {
+      "type": "published",
+      "occurredAt": "2026-01-08T00:00:00Z"
+    },
+    "source": {
+      "type": "rss",
+      "name": "Example RSS"
+    },
+    "provenance": {
+      "capturedAt": "2026-01-15T00:00:00Z",
+      "adapter": "fixture-adapter",
+      "adapterVersion": "0.1.0"
+    },
+    "evidence": [
+      {
+        "id": "ev:rss-article-vectorless:meta",
+        "kind": "metadata",
+        "label": "unusual approach without embeddings"
+      },
+      {
+        "id": "ev:rss-article-vectorless:body",
+        "kind": "content",
+        "label": "fixture body"
+      }
+    ],
+    "sourceSignals": {
+      "quality": 0.65,
+      "activity": 0.75
+    },
+    "extensions": {
+      "example.fixture": {
+        "stable": true
+      }
+    }
+  },
+  {
+    "specVersion": "v0.1",
+    "id": "gh-issue-bug",
+    "subject": {
+      "id": "subject:gh-issue-bug",
+      "type": "Issue",
+      "title": "Help wanted cache bug",
+      "url": "https://example.invalid/gh-issue-bug"
+    },
+    "trigger": {
+      "type": "updated",
+      "occurredAt": "2026-01-09T00:00:00Z"
+    },
+    "source": {
+      "type": "github",
+      "name": "Example GITHUB"
+    },
+    "provenance": {
+      "capturedAt": "2026-01-15T00:00:00Z",
+      "adapter": "fixture-adapter",
+      "adapterVersion": "0.1.0"
+    },
+    "evidence": [
+      {
+        "id": "ev:gh-issue-bug:meta",
+        "kind": "metadata",
+        "label": "reproducible cache bug"
+      },
+      {
+        "id": "ev:gh-issue-bug:body",
+        "kind": "content",
+        "label": "fixture body"
+      }
+    ],
+    "sourceSignals": {
+      "quality": 0.72,
+      "activity": 0.8
+    },
+    "extensions": {
+      "example.fixture": {
+        "stable": true
+      }
+    }
+  },
+  {
+    "specVersion": "v0.1",
+    "id": "rss-announcement-security",
+    "subject": {
+      "id": "subject:rss-announcement-security",
+      "type": "VersionAnnouncement",
+      "title": "Security patch announcement",
+      "url": "https://example.invalid/rss-announcement-security"
+    },
+    "trigger": {
+      "type": "published",
+      "occurredAt": "2026-01-10T00:00:00Z"
+    },
+    "source": {
+      "type": "rss",
+      "name": "Example RSS"
+    },
+    "provenance": {
+      "capturedAt": "2026-01-15T00:00:00Z",
+      "adapter": "fixture-adapter",
+      "adapterVersion": "0.1.0"
+    },
+    "evidence": [
+      {
+        "id": "ev:rss-announcement-security:meta",
+        "kind": "metadata",
+        "label": "stable security patch"
+      },
+      {
+        "id": "ev:rss-announcement-security:body",
+        "kind": "content",
+        "label": "fixture body"
+      }
+    ],
+    "sourceSignals": {
+      "quality": 0.88,
+      "activity": 0.85
+    },
+    "extensions": {
+      "example.fixture": {
+        "stable": true
+      }
+    }
+  }
+]
