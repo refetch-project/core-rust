@@ -1,0 +1,172 @@
+{
+  "specVersion": "v0.1",
+  "id": "slate:frontier-watch",
+  "lensId": "frontier-watch",
+  "generatedAt": "2026-01-15T00:00:00Z",
+  "engine": {
+    "name": "fixture-core",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "candidateId": "rss-article-vectorless",
+      "rank": 1,
+      "decision": {
+        "specVersion": "v0.1",
+        "candidateId": "rss-article-vectorless",
+        "lensId": "frontier-watch",
+        "eligible": true,
+        "rank": 1,
+        "score": 0.78,
+        "reasons": [
+          {
+            "code": "FEATURE_MATCH",
+            "feature": "frontier",
+            "contribution": 0.65,
+            "evidenceRefs": [
+              "ev:rss-article-vectorless:meta",
+              "ev:analysis:rss-article-vectorless:topics"
+            ]
+          }
+        ],
+        "evidenceRefs": [
+          "ev:rss-article-vectorless:meta",
+          "ev:analysis:rss-article-vectorless:topics"
+        ],
+        "extensions": {}
+      }
+    },
+    {
+      "candidateId": "gh-discussion-graph",
+      "rank": 2,
+      "decision": {
+        "specVersion": "v0.1",
+        "candidateId": "gh-discussion-graph",
+        "lensId": "frontier-watch",
+        "eligible": true,
+        "rank": 2,
+        "score": 0.72,
+        "reasons": [
+          {
+            "code": "FEATURE_MATCH",
+            "feature": "frontier",
+            "contribution": 0.6,
+            "evidenceRefs": [
+              "ev:gh-discussion-graph:meta",
+              "ev:analysis:gh-discussion-graph:topics"
+            ]
+          }
+        ],
+        "evidenceRefs": [
+          "ev:gh-discussion-graph:meta",
+          "ev:analysis:gh-discussion-graph:topics"
+        ],
+        "extensions": {}
+      }
+    },
+    {
+      "candidateId": "gh-release-alpha",
+      "rank": 3,
+      "decision": {
+        "specVersion": "v0.1",
+        "candidateId": "gh-release-alpha",
+        "lensId": "frontier-watch",
+        "eligible": true,
+        "rank": 3,
+        "score": 0.6,
+        "reasons": [
+          {
+            "code": "FEATURE_MATCH",
+            "feature": "frontier",
+            "contribution": 0.5,
+            "evidenceRefs": [
+              "ev:gh-release-alpha:meta",
+              "ev:analysis:gh-release-alpha:topics"
+            ]
+          }
+        ],
+        "evidenceRefs": [
+          "ev:gh-release-alpha:meta",
+          "ev:analysis:gh-release-alpha:topics"
+        ],
+        "extensions": {}
+      }
+    },
+    {
+      "candidateId": "rss-article-local-first",
+      "rank": 4,
+      "decision": {
+        "specVersion": "v0.1",
+        "candidateId": "rss-article-local-first",
+        "lensId": "frontier-watch",
+        "eligible": true,
+        "rank": 4,
+        "score": 0.15,
+        "reasons": [
+          {
+            "code": "FEATURE_MATCH",
+            "feature": "quality",
+            "contribution": 0.15,
+            "evidenceRefs": [
+              "ev:rss-article-local-first:meta",
+              "ev:analysis:rss-article-local-first:topics"
+            ]
+          }
+        ],
+        "evidenceRefs": [
+          "ev:rss-article-local-first:meta",
+          "ev:analysis:rss-article-local-first:topics"
+        ],
+        "extensions": {}
+      }
+    },
+    {
+      "candidateId": "gh-issue-good-first",
+      "rank": 5,
+      "decision": {
+        "specVersion": "v0.1",
+        "candidateId": "gh-issue-good-first",
+        "lensId": "frontier-watch",
+        "eligible": true,
+        "rank": 5,
+        "score": 0.14,
+        "reasons": [
+          {
+            "code": "FEATURE_MATCH",
+            "feature": "quality",
+            "contribution": 0.14,
+            "evidenceRefs": [
+              "ev:gh-issue-good-first:meta",
+              "ev:analysis:gh-issue-good-first:topics"
+            ]
+          }
+        ],
+        "evidenceRefs": [
+          "ev:gh-issue-good-first:meta",
+          "ev:analysis:gh-issue-good-first:topics"
+        ],
+        "extensions": {}
+      }
+    }
+  ],
+  "diversity": {
+    "clusters": [
+      "rss-article-vectorless",
+      "gh-discussion-graph",
+      "gh-release-alpha",
+      "rss-article-local-first",
+      "gh-issue-good-first"
+    ]
+  },
+  "coverage": {
+    "sourceTypes": [
+      "github",
+      "rss"
+    ]
+  },
+  "exploration": {
+    "budget": 1,
+    "used": 0
+  },
+  "extensions": {}
+}

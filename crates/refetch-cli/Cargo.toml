@@ -1,0 +1,15 @@
+[package]
+name = "refetch-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "refetch"
+path = "src/main.rs"
+
+[dependencies]
+refetch-contract = { path = "../refetch-contract" }
+refetch-core = { path = "../refetch-core" }
+clap.workspace = true
+serde_json.workspace = true
