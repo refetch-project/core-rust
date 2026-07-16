@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://refetch.dev/schemas/v0.1/rank-request.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "specVersion",
+    "id",
+    "context",
+    "candidates",
+    "analysis",
+    "lens"
+  ],
+  "properties": {
+    "specVersion": {
+      "$ref": "common.schema.json#/$defs/specVersion"
+    },
+    "id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "generatedAt"
+      ],
+      "properties": {
+        "generatedAt": {
+          "$ref": "common.schema.json#/$defs/dateTime"
+        },
+        "extensions": {
+          "$ref": "common.schema.json#/$defs/extensions"
+        }
+      }
+    },
+    "candidates": {
+      "type": "array",
+      "items": {
+        "$ref": "feed-candidate.schema.json"
+      },
+      "minItems": 1
+    },
+    "analysis": {
+      "type": "array",
+      "items": {
+        "$ref": "analysis-record.schema.json"
+      },
+      "minItems": 1
+    },
+    "lens": {
+      "$ref": "lens-profile.schema.json"
+    },
+    "extensions": {
+      "$ref": "common.schema.json#/$defs/extensions"
+    }
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://refetch.dev/schemas/v0.1/analysis-record.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "specVersion",
+    "id",
+    "candidateId",
+    "analyzer",
+    "createdAt",
+    "evidence",
+    "signals"
+  ],
+  "properties": {
+    "specVersion": {
+      "$ref": "common.schema.json#/$defs/specVersion"
+    },
+    "id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "candidateId": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "analyzer": {
+      "$ref": "common.schema.json#/$defs/component"
+    },
+    "createdAt": {
+      "$ref": "common.schema.json#/$defs/dateTime"
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/evidence"
+      },
+      "minItems": 1
+    },
+    "signals": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/analysisSignal"
+      },
+      "minItems": 1
+    },
+    "clusterAssignment": {
+      "$ref": "common.schema.json#/$defs/clusterAssignment"
+    },
+    "extensions": {
+      "$ref": "common.schema.json#/$defs/extensions"
+    }
+  }
+}

@@ -1,0 +1,131 @@
+{
+  "specVersion": "v0.1",
+  "requestId": "req:foundation-v012",
+  "lensId": "lens:production",
+  "generatedAt": "2026-01-15T00:00:00Z",
+  "algorithmId": "refetch.rank.baseline.v0.1",
+  "items": [
+    {
+      "candidateId": "cand:release",
+      "decision": {
+        "rank": 1,
+        "score": 1.01,
+        "reasons": [
+          {
+            "signal": "source.activity",
+            "value": 0.7,
+            "weight": 0.3,
+            "contribution": 0.21,
+            "evidenceRefs": [
+              "ev:cand:release:src"
+            ]
+          },
+          {
+            "signal": "analysis.productionReadiness",
+            "value": 0.9,
+            "weight": 1.0,
+            "contribution": 0.9,
+            "evidenceRefs": [
+              "ev:cand:release:analysis"
+            ]
+          },
+          {
+            "signal": "analysis.operationalRisk",
+            "value": -0.2,
+            "weight": 0.5,
+            "contribution": -0.1,
+            "evidenceRefs": [
+              "ev:cand:release:analysis"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "candidateId": "cand:ops",
+      "decision": {
+        "rank": 2,
+        "score": 0.36,
+        "reasons": [
+          {
+            "signal": "source.activity",
+            "value": 0.2,
+            "weight": 0.3,
+            "contribution": 0.06,
+            "evidenceRefs": [
+              "ev:cand:ops:src"
+            ]
+          },
+          {
+            "signal": "analysis.productionReadiness",
+            "value": 0.5,
+            "weight": 1.0,
+            "contribution": 0.5,
+            "evidenceRefs": [
+              "ev:cand:ops:analysis"
+            ]
+          },
+          {
+            "signal": "analysis.operationalRisk",
+            "value": -0.4,
+            "weight": 0.5,
+            "contribution": -0.2,
+            "evidenceRefs": [
+              "ev:cand:ops:analysis"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "candidateId": "cand:paper",
+      "decision": {
+        "rank": 3,
+        "score": 0.14,
+        "reasons": [
+          {
+            "signal": "source.activity",
+            "value": 0.3,
+            "weight": 0.3,
+            "contribution": 0.09,
+            "evidenceRefs": [
+              "ev:cand:paper:src"
+            ]
+          },
+          {
+            "signal": "analysis.productionReadiness",
+            "value": 0.1,
+            "weight": 1.0,
+            "contribution": 0.1,
+            "evidenceRefs": [
+              "ev:cand:paper:analysis"
+            ]
+          },
+          {
+            "signal": "analysis.operationalRisk",
+            "value": -0.1,
+            "weight": 0.5,
+            "contribution": -0.05,
+            "evidenceRefs": [
+              "ev:cand:paper:analysis"
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "coverage": {
+    "bySourceType": {
+      "github": 1,
+      "rss": 2
+    }
+  },
+  "diversity": {
+    "clustersSelected": {
+      "topic-event:flutter-release": 1,
+      "topic-event:ops-guidance": 1
+    },
+    "unclusteredSelected": 1,
+    "suppressedByClusterLimit": 1
+  }
+}

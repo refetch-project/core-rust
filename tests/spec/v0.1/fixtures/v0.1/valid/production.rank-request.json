@@ -1,0 +1,383 @@
+{
+  "specVersion": "v0.1",
+  "id": "req:foundation-v012",
+  "context": {
+    "generatedAt": "2026-01-15T00:00:00Z"
+  },
+  "candidates": [
+    {
+      "specVersion": "v0.1",
+      "id": "cand:release",
+      "source": {
+        "type": "github",
+        "name": "github"
+      },
+      "subject": {
+        "id": "subj:release",
+        "type": "software.release",
+        "title": "Stable release",
+        "url": "https://example.com/cand:release"
+      },
+      "trigger": {
+        "type": "released",
+        "observedAt": "2026-01-14T00:00:00Z"
+      },
+      "provenance": {
+        "retrievedAt": "2026-01-14T01:00:00Z",
+        "adapter": {
+          "name": "fixture-adapter",
+          "version": "0.1.0"
+        },
+        "author": "Refetch Fixture"
+      },
+      "evidence": [
+        {
+          "id": "ev:cand:release:src",
+          "kind": "url",
+          "description": "Source evidence",
+          "url": "https://example.com/cand:release"
+        }
+      ],
+      "signals": [
+        {
+          "name": "source.activity",
+          "value": 0.7,
+          "evidenceRefs": [
+            "ev:cand:release:src"
+          ]
+        }
+      ]
+    },
+    {
+      "specVersion": "v0.1",
+      "id": "cand:migration",
+      "source": {
+        "type": "github",
+        "name": "github"
+      },
+      "subject": {
+        "id": "subj:migration",
+        "type": "software.issue",
+        "title": "Migration issue",
+        "url": "https://example.com/cand:migration"
+      },
+      "trigger": {
+        "type": "updated",
+        "observedAt": "2026-01-14T00:00:00Z"
+      },
+      "provenance": {
+        "retrievedAt": "2026-01-14T01:00:00Z",
+        "adapter": {
+          "name": "fixture-adapter",
+          "version": "0.1.0"
+        },
+        "author": "Refetch Fixture"
+      },
+      "evidence": [
+        {
+          "id": "ev:cand:migration:src",
+          "kind": "url",
+          "description": "Source evidence",
+          "url": "https://example.com/cand:migration"
+        }
+      ],
+      "signals": [
+        {
+          "name": "source.activity",
+          "value": 0.6,
+          "evidenceRefs": [
+            "ev:cand:migration:src"
+          ]
+        }
+      ]
+    },
+    {
+      "specVersion": "v0.1",
+      "id": "cand:paper",
+      "source": {
+        "type": "rss",
+        "name": "rss"
+      },
+      "subject": {
+        "id": "subj:paper",
+        "type": "article",
+        "title": "Frontier article",
+        "url": "https://example.com/cand:paper"
+      },
+      "trigger": {
+        "type": "published",
+        "observedAt": "2026-01-14T00:00:00Z"
+      },
+      "provenance": {
+        "retrievedAt": "2026-01-14T01:00:00Z",
+        "adapter": {
+          "name": "fixture-adapter",
+          "version": "0.1.0"
+        },
+        "author": "Refetch Fixture"
+      },
+      "evidence": [
+        {
+          "id": "ev:cand:paper:src",
+          "kind": "url",
+          "description": "Source evidence",
+          "url": "https://example.com/cand:paper"
+        }
+      ],
+      "signals": [
+        {
+          "name": "source.activity",
+          "value": 0.3,
+          "evidenceRefs": [
+            "ev:cand:paper:src"
+          ]
+        }
+      ]
+    },
+    {
+      "specVersion": "v0.1",
+      "id": "cand:ops",
+      "source": {
+        "type": "rss",
+        "name": "rss"
+      },
+      "subject": {
+        "id": "subj:ops",
+        "type": "article",
+        "title": "Ops article",
+        "url": "https://example.com/cand:ops"
+      },
+      "trigger": {
+        "type": "published",
+        "observedAt": "2026-01-14T00:00:00Z"
+      },
+      "provenance": {
+        "retrievedAt": "2026-01-14T01:00:00Z",
+        "adapter": {
+          "name": "fixture-adapter",
+          "version": "0.1.0"
+        },
+        "author": "Refetch Fixture"
+      },
+      "evidence": [
+        {
+          "id": "ev:cand:ops:src",
+          "kind": "url",
+          "description": "Source evidence",
+          "url": "https://example.com/cand:ops"
+        }
+      ],
+      "signals": [
+        {
+          "name": "source.activity",
+          "value": 0.2,
+          "evidenceRefs": [
+            "ev:cand:ops:src"
+          ]
+        }
+      ]
+    }
+  ],
+  "analysis": [
+    {
+      "specVersion": "v0.1",
+      "id": "ana:release",
+      "candidateId": "cand:release",
+      "analyzer": {
+        "name": "fixture-analyzer",
+        "version": "0.1.0"
+      },
+      "createdAt": "2026-01-14T02:00:00Z",
+      "evidence": [
+        {
+          "id": "ev:cand:release:analysis",
+          "kind": "text",
+          "description": "Analysis evidence"
+        }
+      ],
+      "signals": [
+        {
+          "name": "analysis.productionReadiness",
+          "value": 0.9,
+          "evidenceRefs": [
+            "ev:cand:release:analysis"
+          ]
+        },
+        {
+          "name": "analysis.novelty",
+          "value": 0.1,
+          "evidenceRefs": [
+            "ev:cand:release:analysis"
+          ]
+        },
+        {
+          "name": "analysis.operationalRisk",
+          "value": -0.2,
+          "evidenceRefs": [
+            "ev:cand:release:analysis"
+          ]
+        }
+      ],
+      "clusterAssignment": {
+        "namespace": "topic-event",
+        "id": "flutter-release",
+        "evidenceRefs": [
+          "ev:cand:release:analysis"
+        ]
+      }
+    },
+    {
+      "specVersion": "v0.1",
+      "id": "ana:migration",
+      "candidateId": "cand:migration",
+      "analyzer": {
+        "name": "fixture-analyzer",
+        "version": "0.1.0"
+      },
+      "createdAt": "2026-01-14T02:00:00Z",
+      "evidence": [
+        {
+          "id": "ev:cand:migration:analysis",
+          "kind": "text",
+          "description": "Analysis evidence"
+        }
+      ],
+      "signals": [
+        {
+          "name": "analysis.productionReadiness",
+          "value": 0.6,
+          "evidenceRefs": [
+            "ev:cand:migration:analysis"
+          ]
+        },
+        {
+          "name": "analysis.novelty",
+          "value": 0.2,
+          "evidenceRefs": [
+            "ev:cand:migration:analysis"
+          ]
+        },
+        {
+          "name": "analysis.operationalRisk",
+          "value": -0.7,
+          "evidenceRefs": [
+            "ev:cand:migration:analysis"
+          ]
+        }
+      ],
+      "clusterAssignment": {
+        "namespace": "topic-event",
+        "id": "flutter-release",
+        "evidenceRefs": [
+          "ev:cand:migration:analysis"
+        ]
+      }
+    },
+    {
+      "specVersion": "v0.1",
+      "id": "ana:paper",
+      "candidateId": "cand:paper",
+      "analyzer": {
+        "name": "fixture-analyzer",
+        "version": "0.1.0"
+      },
+      "createdAt": "2026-01-14T02:00:00Z",
+      "evidence": [
+        {
+          "id": "ev:cand:paper:analysis",
+          "kind": "text",
+          "description": "Analysis evidence"
+        }
+      ],
+      "signals": [
+        {
+          "name": "analysis.productionReadiness",
+          "value": 0.1,
+          "evidenceRefs": [
+            "ev:cand:paper:analysis"
+          ]
+        },
+        {
+          "name": "analysis.novelty",
+          "value": 0.95,
+          "evidenceRefs": [
+            "ev:cand:paper:analysis"
+          ]
+        },
+        {
+          "name": "analysis.operationalRisk",
+          "value": -0.1,
+          "evidenceRefs": [
+            "ev:cand:paper:analysis"
+          ]
+        }
+      ]
+    },
+    {
+      "specVersion": "v0.1",
+      "id": "ana:ops",
+      "candidateId": "cand:ops",
+      "analyzer": {
+        "name": "fixture-analyzer",
+        "version": "0.1.0"
+      },
+      "createdAt": "2026-01-14T02:00:00Z",
+      "evidence": [
+        {
+          "id": "ev:cand:ops:analysis",
+          "kind": "text",
+          "description": "Analysis evidence"
+        }
+      ],
+      "signals": [
+        {
+          "name": "analysis.productionReadiness",
+          "value": 0.5,
+          "evidenceRefs": [
+            "ev:cand:ops:analysis"
+          ]
+        },
+        {
+          "name": "analysis.novelty",
+          "value": 0.3,
+          "evidenceRefs": [
+            "ev:cand:ops:analysis"
+          ]
+        },
+        {
+          "name": "analysis.operationalRisk",
+          "value": -0.4,
+          "evidenceRefs": [
+            "ev:cand:ops:analysis"
+          ]
+        }
+      ],
+      "clusterAssignment": {
+        "namespace": "topic-event",
+        "id": "ops-guidance",
+        "evidenceRefs": [
+          "ev:cand:ops:analysis"
+        ]
+      }
+    }
+  ],
+  "lens": {
+    "specVersion": "v0.1",
+    "id": "lens:production",
+    "title": "Production readiness",
+    "allowedSourceTypes": [
+      "github",
+      "rss"
+    ],
+    "weights": {
+      "source.activity": 0.3,
+      "analysis.productionReadiness": 1.0,
+      "analysis.operationalRisk": 0.5
+    },
+    "policy": {
+      "maxItems": 3,
+      "maxPerCluster": 1,
+      "tieBreaker": "candidateIdAsc"
+    }
+  }
+}
