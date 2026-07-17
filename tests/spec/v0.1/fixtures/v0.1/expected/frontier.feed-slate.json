@@ -1,0 +1,131 @@
+{
+  "specVersion": "v0.1",
+  "requestId": "req:foundation-v012",
+  "lensId": "lens:frontier",
+  "generatedAt": "2026-01-15T00:00:00Z",
+  "algorithmId": "refetch.rank.baseline.v0.1",
+  "items": [
+    {
+      "candidateId": "cand:paper",
+      "decision": {
+        "rank": 1,
+        "score": 1.21,
+        "reasons": [
+          {
+            "signal": "source.activity",
+            "value": 0.3,
+            "weight": 0.2,
+            "contribution": 0.06,
+            "evidenceRefs": [
+              "ev:cand:paper:src"
+            ]
+          },
+          {
+            "signal": "analysis.productionReadiness",
+            "value": 0.1,
+            "weight": 0.1,
+            "contribution": 0.01,
+            "evidenceRefs": [
+              "ev:cand:paper:analysis"
+            ]
+          },
+          {
+            "signal": "analysis.novelty",
+            "value": 0.95,
+            "weight": 1.2,
+            "contribution": 1.14,
+            "evidenceRefs": [
+              "ev:cand:paper:analysis"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "candidateId": "cand:ops",
+      "decision": {
+        "rank": 2,
+        "score": 0.45,
+        "reasons": [
+          {
+            "signal": "source.activity",
+            "value": 0.2,
+            "weight": 0.2,
+            "contribution": 0.04,
+            "evidenceRefs": [
+              "ev:cand:ops:src"
+            ]
+          },
+          {
+            "signal": "analysis.productionReadiness",
+            "value": 0.5,
+            "weight": 0.1,
+            "contribution": 0.05,
+            "evidenceRefs": [
+              "ev:cand:ops:analysis"
+            ]
+          },
+          {
+            "signal": "analysis.novelty",
+            "value": 0.3,
+            "weight": 1.2,
+            "contribution": 0.36,
+            "evidenceRefs": [
+              "ev:cand:ops:analysis"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "candidateId": "cand:migration",
+      "decision": {
+        "rank": 3,
+        "score": 0.42,
+        "reasons": [
+          {
+            "signal": "source.activity",
+            "value": 0.6,
+            "weight": 0.2,
+            "contribution": 0.12,
+            "evidenceRefs": [
+              "ev:cand:migration:src"
+            ]
+          },
+          {
+            "signal": "analysis.productionReadiness",
+            "value": 0.6,
+            "weight": 0.1,
+            "contribution": 0.06,
+            "evidenceRefs": [
+              "ev:cand:migration:analysis"
+            ]
+          },
+          {
+            "signal": "analysis.novelty",
+            "value": 0.2,
+            "weight": 1.2,
+            "contribution": 0.24,
+            "evidenceRefs": [
+              "ev:cand:migration:analysis"
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "coverage": {
+    "bySourceType": {
+      "rss": 2,
+      "github": 1
+    }
+  },
+  "diversity": {
+    "clustersSelected": {
+      "topic-event:ops-guidance": 1,
+      "topic-event:flutter-release": 1
+    },
+    "unclusteredSelected": 1,
+    "suppressedByClusterLimit": 0
+  }
+}

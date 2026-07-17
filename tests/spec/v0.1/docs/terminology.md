@@ -1,0 +1,22 @@
+# Refetch terminology
+
+- **FeedCandidate**: a rankable unit from a source, with candidate identity, subject, trigger, provenance, evidence, and source signals.
+- **Subject**: the stable object being understood, such as a repository release, article, video, issue, or discussion. Subject identity is separate from Candidate and Trigger identity.
+- **Trigger**: why the subject became a candidate now, such as publication, release, update, or observed activity.
+- **Source**: the origin system and type. Source type is an extensible lowercase token; GitHub and RSS are fixture sources, not the only contract platforms.
+- **Provenance**: traceable source metadata such as URL, author, retrieval time, and Adapter identity.
+- **Adapter**: the component that converts source data into FeedCandidate objects. v0.1 records `adapter.name` and `adapter.version` for audit.
+- **Evidence**: a traceable data basis for a signal or cluster assignment. Evidence is not natural-language decoration.
+- **Analyzer**: the component that emits AnalysisRecords. v0.1 records `analyzer.name`, `analyzer.version`, and `createdAt`; live model calls are out of scope for RFC 0001 execution.
+- **AnalysisRecord**: analyzer-produced facts for exactly one candidate, including analysis signals and at most one optional cluster assignment.
+- **Signal**: a named numeric feature with a finite value and explicit evidence references. Candidate signals must use `source.*`; analysis signals must use `analysis.*`; signal names are unique within their object.
+- **LensProfile**: the user-selected task perspective for this ranking run, including weights, filters, and policy. A Lens is not a secret permanent personality inferred by the system.
+- **Policy**: deterministic limits and ordering rules such as `maxItems`, `maxPerCluster`, and `candidateIdAsc`.
+- **Context**: request-level data. In v0.1 it includes `generatedAt`, which is copied to the output slate.
+- **ClusterAssignment**: one optional analyzer statement that a candidate belongs to a cluster namespace and id, with evidence refs. The cluster key is `namespace:id`.
+- **RankingReason**: the structured record of a non-zero feature contribution. It must come from a Signal that actually participated in scoring, and its evidence refs are copied directly from that Signal.
+- **RankingDecision**: the selected candidate's score, continuous rank, and reasons.
+- **FeedSlate**: the deterministic output containing `requestId`, `lensId`, generated time, algorithm id, selected items, coverage, and diversity metrics.
+- **Host**: the application embedding Refetch and selecting the current Lens.
+- **Conformance fields**: fields that affect cross-language expected output, including request id, lens id, context time, candidates, analysis, Lens, algorithm id, scores, reasons, coverage, and diversity.
+- **Implementation audit fields**: implementation-specific crate/package versions or runtime details. These must not alter conformance JSON and belong in explicit extensions or host audit records.

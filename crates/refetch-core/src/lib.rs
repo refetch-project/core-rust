@@ -1,118 +1,276 @@
 use refetch_contract::*;
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
+use thiserror::Error;
 
-#[derive(Debug, thiserror::Error)]
-pub enum CoreError {
-    #[error("missing analysis for candidate {0}")]
+#[derive(Debug, Error, PartialEq, Eq)]
+pub enum RankError {
+    #[error("unsupported spec version: {0}")]
+    UnsupportedSpecVersion(String),
+    #[error("duplicate id in {kind}: {id}")]
+    DuplicateId { kind: &'static str, id: String },
+    #[error("missing analysis for candidate: {0}")]
     MissingAnalysis(String),
-    #[error("invalid evidence reference {0}")]
-    InvalidEvidenceReference(String),
+    #[error("analysis references unknown candidate: {0}")]
+    UnknownCandidate(String),
+    #[error("invalid signal namespace in {record}: {signal}")]
+    InvalidSignalNamespace { record: String, signal: String },
+    #[error("duplicate signal in {record}: {signal}")]
+    DuplicateSignal { record: String, signal: String },
+    #[error("dangling evidence ref in {record}: {evidence_ref}")]
+    DanglingEvidenceRef {
+        record: String,
+        evidence_ref: String,
+    },
+    #[error("invalid policy: {0}")]
+    InvalidPolicy(String),
+    #[error("arithmetic overflow")]
+    ArithmeticOverflow,
 }
 
-pub fn rank(request: &RankRequest) -> Result<FeedSlate, CoreError> {
-    let analyses: BTreeMap<_, _> = request
-        .analyses
+pub fn rank(request: &RankRequest) -> Result<FeedSlate, RankError> {
+    validate(request)?;
+    let analyses: HashMap<_, _> = request
+        .analysis
         .iter()
         .map(|a| (a.candidate_id.as_str(), a))
         .collect();
-    let evidence: BTreeSet<_> = request
-        .candidates
-        .iter()
-        .flat_map(|c| c.evidence.iter().map(|e| e.id.as_str()))
-        .chain(
-            request
-                .analyses
-                .iter()
-                .flat_map(|a| a.evidence.iter().map(|e| e.id.as_str())),
-        )
-        .collect();
+    let allowed: Option<BTreeSet<_>> = request
+        .lens
+        .allowed_source_types
+        .as_ref()
+        .map(|v| v.iter().cloned().collect());
     let mut scored = Vec::new();
-    for c in &request.candidates {
-        if !request.lens.filters.source_types.is_empty()
-            && !request.lens.filters.source_types.contains(&c.source.kind)
-        {
-            continue;
-        }
-        let a = analyses
-            .get(c.id.as_str())
-            .ok_or_else(|| CoreError::MissingAnalysis(c.id.clone()))?;
-        let mut score = 0.0;
-        let mut reasons = Vec::new();
-        for (feature, weight) in &request.lens.weights {
-            let contribution = a.signals.get(feature).copied().unwrap_or(0.0) * weight;
-            score += contribution;
-            if contribution > 0.0 {
-                let refs = vec![
-                    format!("ev:{}:meta", c.id),
-                    format!("ev:analysis:{}:topics", c.id),
-                ];
-                for r in &refs {
-                    if !evidence.contains(r.as_str()) {
-                        return Err(CoreError::InvalidEvidenceReference(r.clone()));
-                    }
-                }
-                reasons.push(RankingReason {
-                    code: "FEATURE_MATCH".into(),
-                    feature: feature.clone(),
-                    contribution: round6(contribution),
-                    evidence_refs: refs,
-                });
+    for cand in &request.candidates {
+        if let Some(allowed) = &allowed {
+            if !allowed.contains(&cand.source.source_type) {
+                continue;
             }
         }
-        let evidence_refs = reasons
-            .iter()
-            .flat_map(|r| r.evidence_refs.clone())
-            .collect();
-        scored.push((
-            round6(score),
-            c.id.clone(),
-            RankingDecision {
-                spec_version: SPEC_VERSION.into(),
-                candidate_id: c.id.clone(),
-                lens_id: request.lens.id.clone(),
-                eligible: true,
-                rank: 0,
-                score: round6(score),
-                reasons,
-                evidence_refs,
-                extensions: Default::default(),
-            },
-        ));
-    }
-    scored.sort_by(|a, b| b.0.total_cmp(&a.0).then_with(|| a.1.cmp(&b.1)));
-    let mut seen_clusters = BTreeSet::new();
-    let mut items = Vec::new();
-    for (_, cid, mut d) in scored {
-        let cluster = cid.clone();
-        if request.lens.limits.max_per_cluster == 1 && !seen_clusters.insert(cluster) {
-            continue;
+        let analysis = analyses
+            .get(cand.id.as_str())
+            .ok_or_else(|| RankError::MissingAnalysis(cand.id.clone()))?;
+        let mut reasons = Vec::new();
+        let mut score = Fixed6::ZERO;
+        for sig in cand.signals.iter().chain(analysis.signals.iter()) {
+            let Some(weight) = request.lens.weights.get(&sig.name) else {
+                continue;
+            };
+            let contribution = sig
+                .value
+                .checked_mul(*weight)
+                .ok_or(RankError::ArithmeticOverflow)?;
+            if contribution.is_zero() {
+                continue;
+            }
+            score = score
+                .checked_add(contribution)
+                .ok_or(RankError::ArithmeticOverflow)?;
+            reasons.push(RankingReason {
+                signal: sig.name.clone(),
+                value: sig.value,
+                weight: *weight,
+                contribution,
+                evidence_refs: sig.evidence_refs.clone(),
+            });
         }
-        d.rank = items.len() + 1;
-        items.push(SlateItem {
-            candidate_id: cid,
-            rank: d.rank,
-            decision: d,
+        scored.push(Scored {
+            candidate: cand,
+            analysis,
+            score,
+            reasons,
         });
-        if items.len() >= request.lens.limits.max_items {
+    }
+    scored.sort_by(|a, b| {
+        b.score
+            .cmp(&a.score)
+            .then_with(|| a.candidate.id.cmp(&b.candidate.id))
+    });
+    let mut items = Vec::new();
+    let mut cluster_counts: BTreeMap<String, usize> = BTreeMap::new();
+    let mut suppressed = 0usize;
+    for row in scored {
+        if items.len() >= request.lens.policy.max_items {
             break;
+        }
+        let key = row.analysis.cluster_assignment.as_ref().map(cluster_key);
+        if let Some(k) = &key {
+            if *cluster_counts.get(k).unwrap_or(&0) >= request.lens.policy.max_per_cluster {
+                suppressed += 1;
+                continue;
+            }
+        }
+        let rank = items.len() + 1;
+        if let Some(k) = key {
+            *cluster_counts.entry(k).or_insert(0) += 1;
+        }
+        items.push(FeedSlateItem {
+            candidate_id: row.candidate.id.clone(),
+            decision: RankingDecision {
+                rank,
+                score: row.score,
+                reasons: row.reasons,
+            },
+        });
+    }
+    let cand_by_id: HashMap<_, _> = request
+        .candidates
+        .iter()
+        .map(|c| (c.id.as_str(), c))
+        .collect();
+    let mut coverage = BTreeMap::new();
+    let mut unclustered = 0usize;
+    for item in &items {
+        let cand = cand_by_id[item.candidate_id.as_str()];
+        *coverage.entry(cand.source.source_type.clone()).or_insert(0) += 1;
+        let analysis = analyses[item.candidate_id.as_str()];
+        if analysis.cluster_assignment.is_none() {
+            unclustered += 1;
         }
     }
     Ok(FeedSlate {
         spec_version: SPEC_VERSION.into(),
-        id: format!("slate:{}", request.lens.id),
+        request_id: request.id.clone(),
         lens_id: request.lens.id.clone(),
-        generated_at: "2026-01-15T00:00:00Z".into(),
-        engine: Engine {
-            name: "refetch-core".into(),
-            version: env!("CARGO_PKG_VERSION").into(),
-        },
-        diversity: serde_json::json!({"clusters": items.iter().map(|i| &i.candidate_id).collect::<Vec<_>>() }),
-        coverage: serde_json::json!({"sourceTypes": request.lens.filters.source_types}),
-        exploration: serde_json::json!({"budget": request.lens.policy.exploration_budget, "used": 0}),
+        generated_at: request.context.generated_at.clone(),
+        algorithm_id: ALGORITHM_ID.into(),
         items,
-        extensions: Default::default(),
+        coverage: Coverage {
+            by_source_type: coverage,
+            extensions: BTreeMap::new(),
+        },
+        diversity: Diversity {
+            clusters_selected: cluster_counts,
+            unclustered_selected: unclustered,
+            suppressed_by_cluster_limit: suppressed,
+            extensions: BTreeMap::new(),
+        },
+        extensions: BTreeMap::new(),
     })
 }
-fn round6(v: f64) -> f64 {
-    (v * 1_000_000.0).round() / 1_000_000.0
+struct Scored<'a> {
+    candidate: &'a FeedCandidate,
+    analysis: &'a AnalysisRecord,
+    score: Fixed6,
+    reasons: Vec<RankingReason>,
+}
+fn cluster_key(c: &ClusterAssignment) -> String {
+    format!("{}:{}", c.namespace, c.id)
+}
+
+pub fn validate(r: &RankRequest) -> Result<(), RankError> {
+    if r.spec_version != SPEC_VERSION {
+        return Err(RankError::UnsupportedSpecVersion(r.spec_version.clone()));
+    }
+    if r.lens.spec_version != SPEC_VERSION {
+        return Err(RankError::UnsupportedSpecVersion(
+            r.lens.spec_version.clone(),
+        ));
+    }
+    if r.lens.policy.max_items < 1 {
+        return Err(RankError::InvalidPolicy("maxItems must be >= 1".into()));
+    }
+    if r.lens.policy.max_per_cluster < 1 {
+        return Err(RankError::InvalidPolicy(
+            "maxPerCluster must be >= 1".into(),
+        ));
+    }
+    if r.lens.policy.tie_breaker != "candidateIdAsc" {
+        return Err(RankError::InvalidPolicy(
+            "tieBreaker must be candidateIdAsc".into(),
+        ));
+    }
+    let mut cand_ids = BTreeSet::new();
+    let mut analysis_ids = BTreeSet::new();
+    for c in &r.candidates {
+        if c.spec_version != SPEC_VERSION {
+            return Err(RankError::UnsupportedSpecVersion(c.spec_version.clone()));
+        }
+        if !cand_ids.insert(c.id.clone()) {
+            return Err(RankError::DuplicateId {
+                kind: "candidate",
+                id: c.id.clone(),
+            });
+        }
+        validate_record(&c.id, &c.evidence, &c.signals, "source.")?;
+    }
+    let cand_set = cand_ids.clone();
+    let mut by_candidate = BTreeSet::new();
+    for a in &r.analysis {
+        if a.spec_version != SPEC_VERSION {
+            return Err(RankError::UnsupportedSpecVersion(a.spec_version.clone()));
+        }
+        if !analysis_ids.insert(a.id.clone()) {
+            return Err(RankError::DuplicateId {
+                kind: "analysis",
+                id: a.id.clone(),
+            });
+        }
+        if !cand_set.contains(&a.candidate_id) {
+            return Err(RankError::UnknownCandidate(a.candidate_id.clone()));
+        }
+        if !by_candidate.insert(a.candidate_id.clone()) {
+            return Err(RankError::DuplicateId {
+                kind: "analysisForCandidate",
+                id: a.candidate_id.clone(),
+            });
+        }
+        validate_record(&a.id, &a.evidence, &a.signals, "analysis.")?;
+        let evidence_ids: BTreeSet<_> = a.evidence.iter().map(|e| e.id.as_str()).collect();
+        if let Some(cl) = &a.cluster_assignment {
+            for er in &cl.evidence_refs {
+                if !evidence_ids.contains(er.as_str()) {
+                    return Err(RankError::DanglingEvidenceRef {
+                        record: a.id.clone(),
+                        evidence_ref: er.clone(),
+                    });
+                }
+            }
+        }
+    }
+    for id in cand_set {
+        if !by_candidate.contains(&id) {
+            return Err(RankError::MissingAnalysis(id));
+        }
+    }
+    Ok(())
+}
+fn validate_record(
+    record: &str,
+    evidence: &[Evidence],
+    signals: &[Signal],
+    prefix: &str,
+) -> Result<(), RankError> {
+    let mut evs = BTreeSet::new();
+    for e in evidence {
+        if !evs.insert(e.id.as_str()) {
+            return Err(RankError::DuplicateId {
+                kind: "evidence",
+                id: e.id.clone(),
+            });
+        }
+    }
+    let mut names = BTreeSet::new();
+    for s in signals {
+        if !s.name.starts_with(prefix) {
+            return Err(RankError::InvalidSignalNamespace {
+                record: record.into(),
+                signal: s.name.clone(),
+            });
+        }
+        if !names.insert(s.name.as_str()) {
+            return Err(RankError::DuplicateSignal {
+                record: record.into(),
+                signal: s.name.clone(),
+            });
+        }
+        for er in &s.evidence_refs {
+            if !evs.contains(er.as_str()) {
+                return Err(RankError::DanglingEvidenceRef {
+                    record: record.into(),
+                    evidence_ref: er.clone(),
+                });
+            }
+        }
+    }
+    Ok(())
 }

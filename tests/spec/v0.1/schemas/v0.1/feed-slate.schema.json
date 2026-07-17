@@ -1,0 +1,162 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://refetch.dev/schemas/v0.1/feed-slate.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "specVersion",
+    "requestId",
+    "lensId",
+    "generatedAt",
+    "algorithmId",
+    "items",
+    "coverage",
+    "diversity"
+  ],
+  "properties": {
+    "specVersion": {
+      "$ref": "common.schema.json#/$defs/specVersion"
+    },
+    "requestId": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "lensId": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "generatedAt": {
+      "$ref": "common.schema.json#/$defs/dateTime"
+    },
+    "algorithmId": {
+      "const": "refetch.rank.baseline.v0.1"
+    },
+    "items": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "candidateId",
+          "decision"
+        ],
+        "properties": {
+          "candidateId": {
+            "$ref": "common.schema.json#/$defs/id"
+          },
+          "decision": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "rank",
+              "score",
+              "reasons"
+            ],
+            "properties": {
+              "rank": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "score": {
+                "type": "number"
+              },
+              "reasons": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "signal",
+                    "value",
+                    "weight",
+                    "contribution",
+                    "evidenceRefs"
+                  ],
+                  "properties": {
+                    "signal": {
+                      "type": "string",
+                      "pattern": "^(source|analysis)\\.[a-z][A-Za-z0-9_.-]*$"
+                    },
+                    "value": {
+                      "type": "number"
+                    },
+                    "weight": {
+                      "type": "number"
+                    },
+                    "contribution": {
+                      "type": "number"
+                    },
+                    "evidenceRefs": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "common.schema.json#/$defs/id"
+                      },
+                      "minItems": 1,
+                      "uniqueItems": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bySourceType"
+      ],
+      "properties": {
+        "bySourceType": {
+          "type": "object",
+          "propertyNames": {
+            "$ref": "common.schema.json#/$defs/token"
+          },
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "extensions": {
+          "$ref": "common.schema.json#/$defs/extensions"
+        }
+      }
+    },
+    "diversity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "clustersSelected",
+        "unclusteredSelected",
+        "suppressedByClusterLimit"
+      ],
+      "properties": {
+        "clustersSelected": {
+          "type": "object",
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*:[a-z][a-z0-9:-]*$"
+          },
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "unclusteredSelected": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "suppressedByClusterLimit": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "extensions": {
+          "$ref": "common.schema.json#/$defs/extensions"
+        }
+      }
+    },
+    "extensions": {
+      "$ref": "common.schema.json#/$defs/extensions"
+    }
+  }
+}

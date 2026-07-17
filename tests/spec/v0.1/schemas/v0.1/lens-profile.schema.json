@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://refetch.dev/schemas/v0.1/lens-profile.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "specVersion",
+    "id",
+    "title",
+    "weights",
+    "policy"
+  ],
+  "properties": {
+    "specVersion": {
+      "$ref": "common.schema.json#/$defs/specVersion"
+    },
+    "id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "allowedSourceTypes": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/token"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "weights": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {
+        "pattern": "^(source|analysis)\\.[a-z][A-Za-z0-9_.-]*$"
+      },
+      "additionalProperties": {
+        "type": "number",
+        "minimum": -10,
+        "maximum": 10
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "maxItems",
+        "maxPerCluster",
+        "tieBreaker"
+      ],
+      "properties": {
+        "maxItems": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxPerCluster": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "tieBreaker": {
+          "const": "candidateIdAsc"
+        },
+        "extensions": {
+          "$ref": "common.schema.json#/$defs/extensions"
+        }
+      }
+    },
+    "extensions": {
+      "$ref": "common.schema.json#/$defs/extensions"
+    }
+  }
+}

@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://refetch.dev/schemas/v0.1/feed-candidate.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "specVersion",
+    "id",
+    "source",
+    "subject",
+    "trigger",
+    "provenance",
+    "evidence",
+    "signals"
+  ],
+  "properties": {
+    "specVersion": {
+      "$ref": "common.schema.json#/$defs/specVersion"
+    },
+    "id": {
+      "$ref": "common.schema.json#/$defs/id"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "name"
+      ],
+      "properties": {
+        "type": {
+          "$ref": "common.schema.json#/$defs/token"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "extensions": {
+          "$ref": "common.schema.json#/$defs/extensions"
+        }
+      }
+    },
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "title",
+        "url"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/id"
+        },
+        "type": {
+          "$ref": "common.schema.json#/$defs/token"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "extensions": {
+          "$ref": "common.schema.json#/$defs/extensions"
+        }
+      }
+    },
+    "trigger": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "observedAt"
+      ],
+      "properties": {
+        "type": {
+          "$ref": "common.schema.json#/$defs/token"
+        },
+        "observedAt": {
+          "$ref": "common.schema.json#/$defs/dateTime"
+        },
+        "extensions": {
+          "$ref": "common.schema.json#/$defs/extensions"
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "retrievedAt",
+        "adapter"
+      ],
+      "properties": {
+        "retrievedAt": {
+          "$ref": "common.schema.json#/$defs/dateTime"
+        },
+        "adapter": {
+          "$ref": "common.schema.json#/$defs/component"
+        },
+        "author": {
+          "type": "string"
+        },
+        "extensions": {
+          "$ref": "common.schema.json#/$defs/extensions"
+        }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/evidence"
+      },
+      "minItems": 1
+    },
+    "signals": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/sourceSignal"
+      },
+      "minItems": 1
+    },
+    "extensions": {
+      "$ref": "common.schema.json#/$defs/extensions"
+    }
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "specVersion": "v0.1",
+  "requestId": "req:foundation-v012",
+  "lensId": "lens:maintenance",
+  "generatedAt": "2026-01-15T00:00:00Z",
+  "algorithmId": "refetch.rank.baseline.v0.1",
+  "items": [
+    {
+      "candidateId": "cand:migration",
+      "decision": {
+        "rank": 1,
+        "score": 1.18,
+        "reasons": [
+          {
+            "signal": "source.activity",
+            "value": 0.6,
+            "weight": 0.4,
+            "contribution": 0.24,
+            "evidenceRefs": [
+              "ev:cand:migration:src"
+            ]
+          },
+          {
+            "signal": "analysis.productionReadiness",
+            "value": 0.6,
+            "weight": 0.4,
+            "contribution": 0.24,
+            "evidenceRefs": [
+              "ev:cand:migration:analysis"
+            ]
+          },
+          {
+            "signal": "analysis.operationalRisk",
+            "value": -0.7,
+            "weight": -1.0,
+            "contribution": 0.7,
+            "evidenceRefs": [
+              "ev:cand:migration:analysis"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "candidateId": "cand:ops",
+      "decision": {
+        "rank": 2,
+        "score": 0.68,
+        "reasons": [
+          {
+            "signal": "source.activity",
+            "value": 0.2,
+            "weight": 0.4,
+            "contribution": 0.08,
+            "evidenceRefs": [
+              "ev:cand:ops:src"
+            ]
+          },
+          {
+            "signal": "analysis.productionReadiness",
+            "value": 0.5,
+            "weight": 0.4,
+            "contribution": 0.2,
+            "evidenceRefs": [
+              "ev:cand:ops:analysis"
+            ]
+          },
+          {
+            "signal": "analysis.operationalRisk",
+            "value": -0.4,
+            "weight": -1.0,
+            "contribution": 0.4,
+            "evidenceRefs": [
+              "ev:cand:ops:analysis"
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "coverage": {
+    "bySourceType": {
+      "github": 1,
+      "rss": 1
+    }
+  },
+  "diversity": {
+    "clustersSelected": {
+      "topic-event:flutter-release": 1,
+      "topic-event:ops-guidance": 1
+    },
+    "unclusteredSelected": 0,
+    "suppressedByClusterLimit": 1
+  }
+}
