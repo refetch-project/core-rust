@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 import hashlib, json, pathlib, sys
-root = pathlib.Path('tests/spec/v0.1')
+
+if len(sys.argv) > 2:
+    print(f'usage: {sys.argv[0]} [snapshot-root]', file=sys.stderr)
+    sys.exit(2)
+
+repo_root = pathlib.Path(__file__).resolve().parents[1]
+root = pathlib.Path(sys.argv[1]).resolve() if len(sys.argv) == 2 else repo_root / 'tests/spec/v0.1'
 manifest_path = root / 'SHA256SUMS.json'
 manifest = json.loads(manifest_path.read_text())
 ok = True

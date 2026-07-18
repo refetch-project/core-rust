@@ -13,6 +13,10 @@ The **concept** repository is the specification source of truth. This repository
 - Lock file: `SPEC_LOCK.json`
 - Snapshot: `tests/spec/v0.1/`
 
+The contract version (`v0.1`), locked Foundation revision (`v0.1.2`), and Rust
+crate release version (`0.1.0`) are separate version axes. A crate release must
+not silently change the locked Concept commit or cross-language JSON behavior.
+
 ## Workspace
 
 ```text
@@ -49,9 +53,9 @@ The CLI only reads JSON, deserializes and validates it, calls `refetch-core`, an
 
 ```bash
 cargo fmt --check
-cargo clippy --workspace --all-targets --all-features -- -D warnings
-cargo test --workspace
-cargo build --release
+cargo clippy --workspace --all-targets --all-features --locked -- -D warnings
+cargo test --workspace --all-targets --locked
+cargo build --workspace --release --locked
 ```
 
 ## Not included in Foundation v0.1.2
