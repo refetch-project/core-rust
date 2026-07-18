@@ -8,6 +8,8 @@ license.workspace = true
 refetch-contract = { path = "../refetch-contract" }
 serde_json.workspace = true
 thiserror.workspace = true
+time.workspace = true
+uriparse.workspace = true
 
 [dev-dependencies]
 serde.workspace = true

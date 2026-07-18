@@ -74,34 +74,76 @@ impl<'de> Deserialize<'de> for Fixed6 {
 }
 
 fn parse_fixed6(s: &str) -> Result<Fixed6, String> {
-    let neg = s.starts_with('-');
-    let t = s.trim_start_matches('-');
-    let parts: Vec<_> = t.split('.').collect();
-    if parts.len() > 2 {
+    let (negative, unsigned) = match s.strip_prefix('-') {
+        Some(unsigned) => (true, unsigned),
+        None => (false, s),
+    };
+    let (mantissa, exponent) = match unsigned.find(['e', 'E']) {
+        Some(index) => {
+            let exponent = unsigned[index + 1..]
+                .parse::<i32>()
+                .map_err(|_| "invalid decimal exponent")?;
+            (&unsigned[..index], exponent)
+        }
+        None => (unsigned, 0),
+    };
+
+    let mut digits = 0i128;
+    let mut decimal_places = 0usize;
+    let mut decimal_point_seen = false;
+    let mut digit_seen = false;
+    for byte in mantissa.bytes() {
+        match byte {
+            b'0'..=b'9' => {
+                digit_seen = true;
+                digits = digits
+                    .checked_mul(10)
+                    .and_then(|value| value.checked_add(i128::from(byte - b'0')))
+                    .ok_or("fixed6 overflow")?;
+                if decimal_point_seen {
+                    decimal_places += 1;
+                }
+            }
+            b'.' if !decimal_point_seen => decimal_point_seen = true,
+            _ => return Err("invalid decimal".into()),
+        }
+    }
+    if !digit_seen {
         return Err("invalid decimal".into());
     }
-    let int: i64 = parts[0].parse().map_err(|_| "invalid integer")?;
-    let frac = if parts.len() == 2 {
-        if parts[1].len() > 6 {
+    if digits == 0 {
+        return Ok(Fixed6::ZERO);
+    }
+
+    let scale_power = i64::from(exponent) + 6 - decimal_places as i64;
+    let scaled = if scale_power >= 0 {
+        digits
+            .checked_mul(checked_pow10(scale_power as u32).ok_or("fixed6 overflow")?)
+            .ok_or("fixed6 overflow")?
+    } else {
+        let divisor = checked_pow10((-scale_power) as u32).ok_or("more than six decimals")?;
+        if digits % divisor != 0 {
             return Err("more than six decimals".into());
         }
-        let mut fs = parts[1].to_string();
-        while fs.len() < 6 {
-            fs.push('0')
-        }
-        fs.parse::<i64>().map_err(|_| "invalid fraction")?
-    } else {
-        0
+        digits / divisor
     };
-    let raw = int
-        .checked_mul(SCALE)
-        .and_then(|x| x.checked_add(frac))
-        .ok_or("fixed6 overflow")?;
-    Ok(Fixed6(if neg { -raw } else { raw }))
+    let signed = if negative { -scaled } else { scaled };
+    i64::try_from(signed)
+        .map(Fixed6)
+        .map_err(|_| "fixed6 overflow".into())
+}
+
+fn checked_pow10(exponent: u32) -> Option<i128> {
+    let mut value = 1i128;
+    for _ in 0..exponent {
+        value = value.checked_mul(10)?;
+    }
+    Some(value)
 }
 
 pub type Extensions = BTreeMap<String, Value>;
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(deny_unknown_fields)]
 pub struct Component {
     pub name: String,
     pub version: String,
@@ -109,6 +151,7 @@ pub struct Component {
     pub extensions: Extensions,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(deny_unknown_fields)]
 pub struct Evidence {
     pub id: String,
     pub kind: String,
@@ -119,6 +162,7 @@ pub struct Evidence {
     pub extensions: Extensions,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(deny_unknown_fields)]
 pub struct Signal {
     pub name: String,
     pub value: Fixed6,
@@ -128,6 +172,7 @@ pub struct Signal {
     pub extensions: Extensions,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(deny_unknown_fields)]
 pub struct ClusterAssignment {
     pub namespace: String,
     pub id: String,
@@ -137,6 +182,7 @@ pub struct ClusterAssignment {
     pub extensions: Extensions,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(deny_unknown_fields)]
 pub struct Source {
     #[serde(rename = "type")]
     pub source_type: String,
@@ -145,6 +191,7 @@ pub struct Source {
     pub extensions: Extensions,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(deny_unknown_fields)]
 pub struct Subject {
     pub id: String,
     #[serde(rename = "type")]
@@ -155,6 +202,7 @@ pub struct Subject {
     pub extensions: Extensions,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(deny_unknown_fields)]
 pub struct Trigger {
     #[serde(rename = "type")]
     pub trigger_type: String,
@@ -164,6 +212,7 @@ pub struct Trigger {
     pub extensions: Extensions,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(deny_unknown_fields)]
 pub struct Provenance {
     #[serde(rename = "retrievedAt")]
     pub retrieved_at: String,
@@ -174,6 +223,7 @@ pub struct Provenance {
     pub extensions: Extensions,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(deny_unknown_fields)]
 pub struct FeedCandidate {
     #[serde(rename = "specVersion")]
     pub spec_version: String,
@@ -188,6 +238,7 @@ pub struct FeedCandidate {
     pub extensions: Extensions,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(deny_unknown_fields)]
 pub struct AnalysisRecord {
     #[serde(rename = "specVersion")]
     pub spec_version: String,
@@ -205,6 +256,7 @@ pub struct AnalysisRecord {
     pub extensions: Extensions,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(deny_unknown_fields)]
 pub struct Policy {
     #[serde(rename = "maxItems")]
     pub max_items: usize,
@@ -216,6 +268,7 @@ pub struct Policy {
     pub extensions: Extensions,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(deny_unknown_fields)]
 pub struct LensProfile {
     #[serde(rename = "specVersion")]
     pub spec_version: String,
@@ -229,6 +282,7 @@ pub struct LensProfile {
     pub extensions: Extensions,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(deny_unknown_fields)]
 pub struct Context {
     #[serde(rename = "generatedAt")]
     pub generated_at: String,
@@ -236,6 +290,7 @@ pub struct Context {
     pub extensions: Extensions,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(deny_unknown_fields)]
 pub struct RankRequest {
     #[serde(rename = "specVersion")]
     pub spec_version: String,
@@ -248,6 +303,7 @@ pub struct RankRequest {
     pub extensions: Extensions,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(deny_unknown_fields)]
 pub struct RankingReason {
     pub signal: String,
     pub value: Fixed6,
@@ -257,18 +313,21 @@ pub struct RankingReason {
     pub evidence_refs: Vec<String>,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(deny_unknown_fields)]
 pub struct RankingDecision {
     pub rank: usize,
     pub score: Fixed6,
     pub reasons: Vec<RankingReason>,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(deny_unknown_fields)]
 pub struct FeedSlateItem {
     #[serde(rename = "candidateId")]
     pub candidate_id: String,
     pub decision: RankingDecision,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(deny_unknown_fields)]
 pub struct Coverage {
     #[serde(rename = "bySourceType")]
     pub by_source_type: BTreeMap<String, usize>,
@@ -276,6 +335,7 @@ pub struct Coverage {
     pub extensions: Extensions,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(deny_unknown_fields)]
 pub struct Diversity {
     #[serde(rename = "clustersSelected")]
     pub clusters_selected: BTreeMap<String, usize>,
@@ -287,6 +347,7 @@ pub struct Diversity {
     pub extensions: Extensions,
 }
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(deny_unknown_fields)]
 pub struct FeedSlate {
     #[serde(rename = "specVersion")]
     pub spec_version: String,
@@ -303,4 +364,47 @@ pub struct FeedSlate {
     pub diversity: Diversity,
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub extensions: Extensions,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn fixed(json: &str) -> Result<Fixed6, serde_json::Error> {
+        serde_json::from_str(json)
+    }
+
+    #[test]
+    fn fixed6_accepts_exact_six_decimal_values_and_exponents() {
+        assert_eq!(fixed("0.000001").unwrap().raw(), 1);
+        assert_eq!(fixed("1e-6").unwrap().raw(), 1);
+        assert_eq!(fixed("-1e-6").unwrap().raw(), -1);
+        assert_eq!(fixed("1.234567").unwrap().raw(), 1_234_567);
+        assert_eq!(fixed("123e-2").unwrap().raw(), 1_230_000);
+    }
+
+    #[test]
+    fn fixed6_rejects_values_beyond_six_decimal_places() {
+        for json in ["0.0000001", "1e-7", "-1e-7"] {
+            let error = fixed(json).unwrap_err().to_string();
+            assert!(error.contains("more than six decimals"), "{json}: {error}");
+        }
+    }
+
+    #[test]
+    fn fixed6_smallest_value_round_trips() {
+        let value = fixed("0.000001").unwrap();
+        let json = serde_json::to_string(&value).unwrap();
+        assert_eq!(fixed(&json).unwrap(), value, "serialized as {json}");
+    }
+
+    #[test]
+    fn contract_objects_reject_unknown_fields() {
+        let error = serde_json::from_str::<Component>(
+            r#"{"name":"fixture-adapter","version":"0.1.0","unexpected":true}"#,
+        )
+        .unwrap_err()
+        .to_string();
+        assert!(error.contains("unknown field `unexpected`"), "{error}");
+    }
 }
