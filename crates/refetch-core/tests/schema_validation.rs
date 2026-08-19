@@ -166,3 +166,56 @@ fn six_decimal_signal_values_rank_successfully() {
     value.candidates[0].signals[0].value = fixed("0.000001");
     assert!(rank(&value).is_ok());
 }
+
+#[test]
+fn analysis_and_cluster_refs_accept_the_corresponding_candidate_evidence() {
+    let mut value = request();
+    let candidate_id = value.candidates[0].id.clone();
+    let candidate_evidence_id = value.candidates[0].evidence[0].id.clone();
+    let analysis = value
+        .analysis
+        .iter_mut()
+        .find(|analysis| analysis.candidate_id == candidate_id)
+        .unwrap();
+    analysis.signals[0].evidence_refs = vec![candidate_evidence_id.clone()];
+    analysis.cluster_assignment.as_mut().unwrap().evidence_refs = vec![candidate_evidence_id];
+
+    assert!(rank(&value).is_ok());
+}
+
+#[test]
+fn evidence_ids_are_unique_across_candidates_and_analysis() {
+    let mut value = request();
+    value.analysis[0].evidence[0].id = value.candidates[0].evidence[0].id.clone();
+
+    assert!(matches!(
+        rank(&value),
+        Err(RankError::DuplicateId {
+            kind: "evidence",
+            ..
+        })
+    ));
+}
+
+#[test]
+fn source_signals_cannot_reference_analysis_evidence() {
+    let mut value = request();
+    let candidate_id = value.candidates[0].id.clone();
+    let analysis_evidence_id = value
+        .analysis
+        .iter()
+        .find(|analysis| analysis.candidate_id == candidate_id)
+        .unwrap()
+        .evidence[0]
+        .id
+        .clone();
+    value.candidates[0].signals[0].evidence_refs = vec![analysis_evidence_id.clone()];
+
+    assert!(matches!(
+        rank(&value),
+        Err(RankError::DanglingEvidenceRef {
+            record,
+            evidence_ref,
+        }) if record == candidate_id && evidence_ref == analysis_evidence_id
+    ));
+}

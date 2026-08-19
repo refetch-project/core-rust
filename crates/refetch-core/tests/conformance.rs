@@ -8,7 +8,7 @@ use std::{
     process::Command,
 };
 
-const LOCKED_INVALID_FIXTURE_COUNT: usize = 15;
+const LOCKED_INVALID_FIXTURE_COUNT: usize = 36;
 
 #[derive(Debug, Deserialize)]
 struct InvalidFixture {
@@ -23,6 +23,18 @@ struct InvalidFixture {
 struct InvalidFixtureRun {
     discovered: usize,
     executed: usize,
+}
+
+#[derive(Debug)]
+struct RequestParseError {
+    path: String,
+    message: String,
+}
+
+impl std::fmt::Display for RequestParseError {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(formatter, "{} at {}", self.message, self.path)
+    }
 }
 
 fn root() -> PathBuf {
@@ -71,8 +83,16 @@ fn fixture_error(expected_error: &str, actual_error: impl std::fmt::Display) -> 
     format!("expectedError: {expected_error}\nactual error: {actual_error}")
 }
 
-fn parse_request(fixture: &InvalidFixture) -> Result<RankRequest, serde_json::Error> {
-    serde_json::from_value(fixture.request.clone())
+fn parse_request(fixture: &InvalidFixture) -> Result<RankRequest, RequestParseError> {
+    let json = serde_json::to_string(&fixture.request).map_err(|error| RequestParseError {
+        path: "<request>".into(),
+        message: error.to_string(),
+    })?;
+    let mut deserializer = serde_json::Deserializer::from_str(&json);
+    serde_path_to_error::deserialize(&mut deserializer).map_err(|error| RequestParseError {
+        path: error.path().to_string(),
+        message: error.inner().to_string(),
+    })
 }
 
 fn expect_rank_error(
@@ -108,7 +128,8 @@ fn expect_schema_error(fixture: &InvalidFixture) -> Result<(), String> {
         Err(
             RankError::UnsupportedSpecVersion(_)
             | RankError::InvalidSignalNamespace { .. }
-            | RankError::InvalidPolicy(_),
+            | RankError::InvalidPolicy(_)
+            | RankError::SchemaViolation { .. },
         ) => Ok(()),
         Err(error) => Err(fixture_error(
             "schema",
@@ -118,6 +139,34 @@ fn expect_schema_error(fixture: &InvalidFixture) -> Result<(), String> {
             "schema",
             format!("request passed serde and rank succeeded with slate {slate:?}"),
         )),
+    }
+}
+
+fn expect_precision_error(
+    fixture: &InvalidFixture,
+    expected_error: &str,
+    path_matches: impl FnOnce(&str) -> bool,
+) -> Result<(), String> {
+    match parse_request(fixture) {
+        Err(error)
+            if error.message.contains("more than six decimals") && path_matches(&error.path) =>
+        {
+            Ok(())
+        }
+        Err(error) => Err(fixture_error(
+            expected_error,
+            format!("unexpected request deserialization error: {error}"),
+        )),
+        Ok(request) => match rank(&request) {
+            Err(error) => Err(fixture_error(
+                expected_error,
+                format!("request deserialization succeeded; rank returned {error:?}: {error}"),
+            )),
+            Ok(slate) => Err(fixture_error(
+                expected_error,
+                format!("request deserialization and rank succeeded with slate {slate:?}"),
+            )),
+        },
     }
 }
 
@@ -251,6 +300,36 @@ fn execute_invalid_fixture(path: &Path, contents: &str) -> Result<(), String> {
         "danglingEvidenceRef" => expect_rank_error(&fixture, &expected_error, |_, error| {
             matches!(error, RankError::DanglingEvidenceRef { .. })
         }),
+        "sourceSignalEvidenceRef" => {
+            expect_rank_error(&fixture, &expected_error, |request, error| match error {
+                RankError::DanglingEvidenceRef {
+                    record,
+                    evidence_ref,
+                } => request
+                    .candidates
+                    .iter()
+                    .find(|candidate| candidate.id == *record)
+                    .and_then(|candidate| {
+                        request
+                            .analysis
+                            .iter()
+                            .find(|analysis| analysis.candidate_id == candidate.id)
+                    })
+                    .is_some_and(|analysis| {
+                        analysis
+                            .evidence
+                            .iter()
+                            .any(|evidence| evidence.id == *evidence_ref)
+                    }),
+                _ => false,
+            })
+        }
+        "signalValuePrecision" => expect_precision_error(&fixture, &expected_error, |path| {
+            path.contains(".signals[") && path.ends_with(".value")
+        }),
+        "weightPrecision" => expect_precision_error(&fixture, &expected_error, |path| {
+            path.starts_with("lens.weights.")
+        }),
         "expectedScoreMismatch" => expect_score_mismatch(&fixture),
         "coverageMismatch" => expect_coverage_mismatch(&fixture),
         _ => Err(fixture_error(
@@ -272,7 +351,6 @@ fn run_invalid_fixtures(dir: &Path, expected_count: usize) -> Result<InvalidFixt
     }
     let mut executed = 0;
     for path in paths {
-        executed += 1;
         let contents = fs::read_to_string(&path).map_err(|error| {
             format!(
                 "invalid fixtures discovered: {discovered}\ninvalid fixtures executed: {executed}\nfixture path: {}\nexpectedError: <unavailable>\nactual error: failed to read fixture: {error}",
@@ -287,6 +365,7 @@ fn run_invalid_fixtures(dir: &Path, expected_count: usize) -> Result<InvalidFixt
                 ));
             }
         }
+        executed += 1;
     }
     Ok(InvalidFixtureRun {
         discovered,
@@ -409,6 +488,43 @@ fn unknown_expected_error_fails() {
         Ok(()) => panic!("unknown expectedError unexpectedly passed"),
         Err(error) => error,
     };
+    assert!(error.contains(&path.display().to_string()), "{error}");
+    assert!(
+        error.contains("expectedError: futureUnknownError"),
+        "{error}"
+    );
+    assert!(
+        error.contains("actual error: unknown expectedError"),
+        "{error}"
+    );
+}
+
+#[test]
+fn failed_invalid_fixture_is_not_counted_as_executed() {
+    let dir = std::env::temp_dir().join(format!(
+        "refetch-core-failed-invalid-fixture-{}-{:?}",
+        std::process::id(),
+        std::thread::current().id()
+    ));
+    fs::create_dir(&dir).unwrap();
+    let path = dir.join("unknown-expected-error.json");
+    let contents = serde_json::json!({
+        "expectedError": "futureUnknownError",
+        "request": req("production"),
+    })
+    .to_string();
+    fs::write(&path, contents).unwrap();
+
+    let result = run_invalid_fixtures(&dir, 1);
+    fs::remove_file(&path).unwrap();
+    fs::remove_dir(&dir).unwrap();
+
+    let error = match result {
+        Ok(run) => panic!("unknown expectedError unexpectedly passed: {run:?}"),
+        Err(error) => error,
+    };
+    assert!(error.contains("invalid fixtures discovered: 1"), "{error}");
+    assert!(error.contains("invalid fixtures executed: 0"), "{error}");
     assert!(error.contains(&path.display().to_string()), "{error}");
     assert!(
         error.contains("expectedError: futureUnknownError"),

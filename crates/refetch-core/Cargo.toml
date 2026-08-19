@@ -13,3 +13,4 @@ uriparse.workspace = true
 
 [dev-dependencies]
 serde.workspace = true
+serde_path_to_error = "0.1"
