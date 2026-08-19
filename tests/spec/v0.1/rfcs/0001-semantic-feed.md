@@ -41,7 +41,7 @@ A `FeedSlate` contains `specVersion`, `requestId` copied from `RankRequest.id`, 
 
 ## 8. Signal and Evidence rules
 
-Every score-affecting Signal contains `value` and non-empty `evidenceRefs`. Implementations must not guess Evidence IDs from candidate IDs. Candidate signals must use `source.*`; AnalysisRecord signals must use `analysis.*`. Signal names are unique within a candidate or analysis record. Evidence refs must resolve within the candidate or its analysis record.
+Every score-affecting Signal contains `value` and non-empty `evidenceRefs`. Implementations must not guess Evidence IDs from candidate IDs. Evidence IDs are globally unique within one RankRequest. Candidate signals must use `source.*` and may reference only their own `FeedCandidate.evidence`. AnalysisRecord signals must use `analysis.*` and may reference the union of the corresponding `FeedCandidate.evidence` and `AnalysisRecord.evidence`. `clusterAssignment.evidenceRefs` follows the same union rule as analysis signals. Signal names are unique within a candidate or analysis record.
 
 ## 9. Lens weights, decimal scoring, and feature contributions
 

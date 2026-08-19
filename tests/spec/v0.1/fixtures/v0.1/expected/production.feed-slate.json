@@ -45,13 +45,22 @@
       "candidateId": "cand:ops",
       "decision": {
         "rank": 2,
-        "score": 0.36,
+        "score": 0.360001,
         "reasons": [
           {
             "signal": "source.activity",
             "value": 0.2,
             "weight": 0.3,
             "contribution": 0.06,
+            "evidenceRefs": [
+              "ev:cand:ops:src"
+            ]
+          },
+          {
+            "signal": "source.micro",
+            "value": 1e-06,
+            "weight": 1.0,
+            "contribution": 1e-06,
             "evidenceRefs": [
               "ev:cand:ops:src"
             ]

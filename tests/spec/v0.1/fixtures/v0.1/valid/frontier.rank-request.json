@@ -174,6 +174,13 @@
           "evidenceRefs": [
             "ev:cand:ops:src"
           ]
+        },
+        {
+          "name": "source.micro",
+          "value": 1e-06,
+          "evidenceRefs": [
+            "ev:cand:ops:src"
+          ]
         }
       ]
     }
@@ -301,7 +308,7 @@
           "name": "analysis.novelty",
           "value": 0.95,
           "evidenceRefs": [
-            "ev:cand:paper:analysis"
+            "ev:cand:paper:src"
           ]
         },
         {
