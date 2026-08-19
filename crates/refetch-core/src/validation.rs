@@ -1,6 +1,6 @@
 use crate::RankError;
 use refetch_contract::*;
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 use time::{format_description::well_known::Rfc3339, OffsetDateTime};
 use uriparse::URI;
 
@@ -34,8 +34,10 @@ pub fn validate(request: &RankRequest) -> Result<(), RankError> {
         "must contain at least one analysis record",
     )?;
     validate_lens(&request.lens)?;
+    validate_global_evidence_ids(request)?;
 
     let mut candidate_ids = BTreeSet::new();
+    let mut candidate_by_id = BTreeMap::new();
     for (index, candidate) in request.candidates.iter().enumerate() {
         validate_candidate(candidate, index)?;
         if !candidate_ids.insert(candidate.id.as_str()) {
@@ -44,12 +46,18 @@ pub fn validate(request: &RankRequest) -> Result<(), RankError> {
                 id: candidate.id.clone(),
             });
         }
+        candidate_by_id.insert(candidate.id.as_str(), candidate);
     }
 
     let mut analysis_ids = BTreeSet::new();
     let mut analyzed_candidates = BTreeSet::new();
     for (index, analysis) in request.analysis.iter().enumerate() {
-        validate_analysis(analysis, index)?;
+        let candidate = candidate_by_id.get(analysis.candidate_id.as_str()).copied();
+        validate_analysis(
+            analysis,
+            index,
+            candidate.map_or(&[], |candidate| candidate.evidence.as_slice()),
+        )?;
         if !analysis_ids.insert(analysis.id.as_str()) {
             return Err(RankError::DuplicateId {
                 kind: "analysis",
@@ -70,6 +78,29 @@ pub fn validate(request: &RankRequest) -> Result<(), RankError> {
     for id in candidate_ids {
         if !analyzed_candidates.contains(id) {
             return Err(RankError::MissingAnalysis(id.into()));
+        }
+    }
+    Ok(())
+}
+
+fn validate_global_evidence_ids(request: &RankRequest) -> Result<(), RankError> {
+    let mut ids = BTreeSet::new();
+    for evidence in request
+        .candidates
+        .iter()
+        .flat_map(|candidate| &candidate.evidence)
+        .chain(
+            request
+                .analysis
+                .iter()
+                .flat_map(|analysis| &analysis.evidence),
+        )
+    {
+        if !ids.insert(evidence.id.as_str()) {
+            return Err(RankError::DuplicateId {
+                kind: "evidence",
+                id: evidence.id.clone(),
+            });
         }
     }
     Ok(())
@@ -204,13 +235,18 @@ fn validate_candidate(candidate: &FeedCandidate, index: usize) -> Result<(), Ran
     validate_record(
         &candidate.id,
         &candidate.evidence,
+        &[],
         &candidate.signals,
         "source.",
         &path,
     )
 }
 
-fn validate_analysis(analysis: &AnalysisRecord, index: usize) -> Result<(), RankError> {
+fn validate_analysis(
+    analysis: &AnalysisRecord,
+    index: usize,
+    candidate_evidence: &[Evidence],
+) -> Result<(), RankError> {
     let path = format!("request.analysis[{index}]");
     if analysis.spec_version != SPEC_VERSION {
         return Err(RankError::UnsupportedSpecVersion(
@@ -236,6 +272,7 @@ fn validate_analysis(analysis: &AnalysisRecord, index: usize) -> Result<(), Rank
     validate_record(
         &analysis.id,
         &analysis.evidence,
+        candidate_evidence,
         &analysis.signals,
         "analysis.",
         &path,
@@ -252,9 +289,10 @@ fn validate_analysis(analysis: &AnalysisRecord, index: usize) -> Result<(), Rank
             &format!("{cluster_path}.id"),
             "must match ^[a-z][a-z0-9:-]*$",
         )?;
+        let allowed_evidence_ids = evidence_id_set(&analysis.evidence, candidate_evidence);
         validate_evidence_refs(
             &analysis.id,
-            &analysis.evidence,
+            &allowed_evidence_ids,
             &cluster.evidence_refs,
             &format!("{cluster_path}.evidenceRefs"),
         )?;
@@ -278,6 +316,7 @@ fn validate_component(component: &Component, path: &str) -> Result<(), RankError
 fn validate_record(
     record: &str,
     evidence: &[Evidence],
+    external_evidence: &[Evidence],
     signals: &[Signal],
     namespace: &str,
     path: &str,
@@ -303,6 +342,7 @@ fn validate_record(
             });
         }
     }
+    let allowed_evidence_ids = evidence_id_set(evidence, external_evidence);
     let mut signal_names = BTreeSet::new();
     for (index, signal) in signals.iter().enumerate() {
         let signal_path = format!("{path}.signals[{index}]");
@@ -325,7 +365,7 @@ fn validate_record(
         }
         validate_evidence_refs(
             record,
-            evidence,
+            &allowed_evidence_ids,
             &signal.evidence_refs,
             &format!("{signal_path}.evidenceRefs"),
         )?;
@@ -361,7 +401,7 @@ fn validate_evidence(item: &Evidence, path: &str) -> Result<(), RankError> {
 
 fn validate_evidence_refs(
     record: &str,
-    evidence: &[Evidence],
+    evidence_ids: &BTreeSet<&str>,
     evidence_refs: &[String],
     path: &str,
 ) -> Result<(), RankError> {
@@ -370,7 +410,6 @@ fn validate_evidence_refs(
         path,
         "must contain at least one evidence reference",
     )?;
-    let evidence_ids: BTreeSet<_> = evidence.iter().map(|item| item.id.as_str()).collect();
     let mut unique = BTreeSet::new();
     for (index, evidence_ref) in evidence_refs.iter().enumerate() {
         let item_path = format!("{path}[{index}]");
@@ -392,6 +431,13 @@ fn validate_evidence_refs(
         }
     }
     Ok(())
+}
+
+fn evidence_id_set<'a>(own: &'a [Evidence], external: &'a [Evidence]) -> BTreeSet<&'a str> {
+    own.iter()
+        .chain(external)
+        .map(|evidence| evidence.id.as_str())
+        .collect()
 }
 
 fn require_schema(condition: bool, path: &str, message: &str) -> Result<(), RankError> {
