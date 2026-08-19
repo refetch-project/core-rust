@@ -8,12 +8,12 @@ The **concept** repository is the specification source of truth. This repository
 
 - Spec version: `v0.1`
 - Concept repository: `https://github.com/refetch-project/concept`
-- Locked Concept commit: `a49e51bbfd04462398bbb7ea613f003b2c417544`
+- Locked Concept commit: `823c5303246b467fe9425141c1dcbca92537db28`
 - Tag: `null` (no nonexistent tag is recorded)
 - Lock file: `SPEC_LOCK.json`
 - Snapshot: `tests/spec/v0.1/`
 
-The contract version (`v0.1`), locked Foundation revision (`v0.1.2`), and Rust
+The contract version (`v0.1`), locked Foundation revision (`v0.1.3`), and Rust
 crate release version (`0.1.0`) are separate version axes. A crate release must
 not silently change the locked Concept commit or cross-language JSON behavior.
 
@@ -26,6 +26,17 @@ crates/refetch-cli/       refetch rank --input request.json --output slate.json
 tests/spec/v0.1/          read-only Concept snapshot and SHA-256 manifest
 scripts/                  offline snapshot verification/update helpers
 ```
+
+## Integration boundary
+
+Rust hosts can call `refetch_core::rank(&RankRequest)` directly. Non-Rust hosts
+can use the file-based CLI as a minimal offline process boundary. In both cases,
+the Host remains responsible for producing a complete, already normalized
+`RankRequest`; Core does not fetch sources or run analyzers.
+
+See [`docs/INTEGRATION.md`](docs/INTEGRATION.md) for the supported inputs,
+failure behavior, Evidence rules, and the integration checklist. Project stage
+and entry gates are tracked in [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ## Verify the spec snapshot
 
@@ -58,6 +69,6 @@ cargo test --workspace --all-targets --locked
 cargo build --workspace --release --locked
 ```
 
-## Not included in Foundation v0.1.2
+## Not included in Foundation v0.1.3
 
-Network adapters, AI analyzers, WASM, Flutter/Dart FFI, Feed Lab UI, Bilibili/PiliPlus integration, databases, cloud services, Tokio runtime, App Semantic Contract, MCP, AG-UI, and A2UI are out of scope.
+Network adapters, AI analyzers, WASM, Flutter/Dart FFI, Feed Lab UI, Bilibili/PiliNara integration, databases, cloud services, Tokio runtime, App Semantic Contract, MCP, AG-UI, and A2UI are out of scope.

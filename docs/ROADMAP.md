@@ -2,7 +2,7 @@
 
 > 状态：维护者工作文档（非规范）
 >
-> 最近更新：2026-07-18
+> 最近更新：2026-08-17
 >
 > 适用仓库：`refetch-project/core-rust`
 
@@ -80,23 +80,23 @@ Rust 类型是 Concept 的 binding，不能反向定义规范。Core 中不得�
 
 ### 后续模块
 
-Adapter、Analyzer、Feed Lab、Flutter/PiliPlus Host 和其他语言实现必须独立演进。它们不能提前侵入 Foundation Core。
+Adapter、Analyzer、Feed Lab、Flutter/PiliNara Host 和其他语言实现必须独立演进。它们不能提前侵入 Foundation Core。
 
 ## 3. 当前基线
 
 | 项目 | 当前值 |
 | --- | --- |
 | Concept spec version | `v0.1` |
-| Locked Concept commit | `a49e51bbfd04462398bbb7ea613f003b2c417544` |
-| Foundation revision | `v0.1.2` |
+| Locked Concept commit | `823c5303246b467fe9425141c1dcbca92537db28` |
+| Foundation revision | `v0.1.3` |
 | Rust workspace version | `0.1.0` |
-| `origin/main` baseline | `3621484e2d14be090bf0fcc6782a0479de40001f` |
-| 当前工作分支 | `fix/v012-conformance-runner` |
+| `origin/main` baseline | `bb56de77108d539f2ac443f0540e6c89be5e3293` |
+| 当前工作分支 | `fix/v013-conformance-alignment` |
 
 版本含义必须分开：
 
 - `specVersion: v0.1` 是跨语言 JSON 契约版本。
-- Foundation `v0.1.2` 是当前锁定规范修订。
+- Foundation `v0.1.3` 是当前锁定规范修订。
 - Rust crate `0.1.0` 是实现发布版本。
 
 任何一个版本变化都不能隐式改变另外两个版本的行为。
@@ -111,62 +111,72 @@ Adapter、Analyzer、Feed Lab、Flutter/PiliPlus Host 和其他语言实现必�
 - [x] 确定性 baseline ranking、tie-break、cluster limit、Coverage 与 Diversity
 - [x] 最小离线 CLI
 - [x] 基础 CI
+- [x] v0.1.2 invalid runner 静默跳过修复与 15/15 fixture 计数
+- [x] 未知字段、Schema 约束与 `Fixed6` 六位精度验证
+- [x] snapshot verifier、同步脚本与 locked Cargo 验收链
 
-### 当前工作分支，待人工审查
+### 当前工作分支：v0.1.3 规范范围已确认，最终 diff 待人工审查
 
-- [~] 修复 invalid fixture wrapper 被整体反序列化导致的静默跳过
-- [~] 按路径排序、发现并执行恰好 15 个 invalid fixtures
-- [~] 精确匹配 `expectedError` 与实际 `RankError` 或声明的 slate 差异
-- [~] 拒绝未知 JSON 字段
-- [~] 补齐主要 Schema 输入约束与结构化错误路径
-- [~] 修复 `Fixed6` 六位小数和科学计数法边界
-- [~] 硬化 snapshot verifier、sync script 和 CI locked commands
+- [x] 锁定并同步 Concept Foundation v0.1.3 snapshot
+- [x] 按路径发现并执行恰好 36 个 invalid fixtures
+- [x] 精确匹配新增 precision 与 Evidence `expectedError`
+- [x] Analysis Signal 与 Cluster 支持 Candidate + Analysis Evidence 并集
+- [x] Evidence ID 在整个 RankRequest 内全局唯一
+- [x] 三个 valid fixture 生成完全一致的 expected FeedSlate
+- [x] CLI 成功、确定性、Schema/语义失败和 malformed JSON 端到端测试
+- [x] 明确 Rust API、CLI、Host、Adapter 与 Analyzer 的接入边界
 
 最近一次本地验证结果（未提交工作树）：
 
 ```text
-invalid fixtures discovered: 15
-invalid fixtures executed: 15
-Rust tests: 28 passed, 0 failed
+invalid fixtures discovered: 36
+invalid fixtures executed: 36
+Rust tests: 36 passed, 0 failed
+Concept fixtures: 3 valid and 36 invalid passed
 snapshot verification: passed
 fmt: passed
 clippy -D warnings: passed
 workspace release build: passed
 ```
 
-这些结果只描述当前本地工作树，不代表已经合并或发布。
+这些结果只描述当前工作分支，不代表已经合并、打 tag 或发布。
 
-## 5. Now：Foundation v0.1.2 conformance 收口
+## 5. Now：Foundation v0.1.3 conformance 收口
 
 当前唯一主线是让 Rust Core 与锁定 Concept 契约可信一致，不扩张产品功能。
 
-### 5.1 当前修改人工审查
+### 5.1 v0.1.3 snapshot 与 conformance 本地检查
 
-- [ ] 检查 conformance runner 是否真实执行每个 fixture 一次
-- [ ] 检查新增验证是否完全来自锁定 Schema/RFC，而非 Rust 自创语义
-- [ ] 检查 `Fixed6` 是否保持跨语言十进制行为
-- [ ] 检查依赖增加是否与标准解析需求相称
-- [ ] 决定当前大 diff 是否拆成独立提交切片
+- [x] 确认 `SPEC_LOCK` 指向经过审查的 Concept v0.1.3 commit
+- [x] 确认 snapshot 与该 commit 的干净 Concept checkout 逐文件一致
+- [x] 检查 conformance runner 是否真实执行 36 个 fixture，每个一次
+- [x] 检查新增 `expectedError` 是否匹配实际 serde 路径或具体 `RankError`
+- [x] 检查 Evidence 全局唯一性和 Candidate/Analysis 引用范围是否与 RFC 一致
+- [x] 确认三个 expected FeedSlate 完全重现且排序公式未修改
 
-完成门槛：审查者能够逐项解释每个行为对应的规范来源，并确认没有修改 snapshot、expected output 或排序公式。
+完成门槛：审查者能够逐项解释每个行为对应的规范来源，并确认没有为了实现方便修改 Concept snapshot、expected output 或排序算法。
+
+维护者已确认 v0.1.3 的 Evidence 范围、36 个 invalid fixtures、六位精度测试以及锁定 merge commit `823c5303246b467fe9425141c1dcbca92537db28`。上述勾选项表示本地自动化与代理检查完成，不代表维护者已经审查最终 Rust diff。
 
 ### 5.2 JSON 与错误边界闭环
 
-- [ ] 为 CLI 增加端到端成功和失败测试
-- [ ] 覆盖顶层与嵌套未知字段
-- [ ] 覆盖 ID、token、version、date-time、URI、范围、非空和唯一性
-- [ ] 覆盖 `Fixed6` 正负边界、六位精度、指数形式、溢出和 round-trip
-- [ ] 确认所有失败都包含可定位路径和实际错误
+- [x] 为 CLI 增加成功输出和重复执行端到端测试
+- [x] 为 CLI 增加 malformed JSON、Schema 错误和语义错误端到端测试
+- [x] 覆盖顶层与嵌套未知字段
+- [x] 覆盖 ID、token、version、date-time、URI、范围、非空和唯一性
+- [x] 覆盖 `Fixed6` 六位精度、指数形式、超精度和 round-trip
+- [x] Core Schema 失败包含可定位路径和实际信息
+- [ ] 决定未来是否需要机器可读 CLI error envelope；v0.1.3 不把 stderr 文本提升为跨语言契约
 
 完成门槛：合法输入不会被拒绝，非法输入不会静默通过，同一错误在重复执行时稳定一致。
 
 ### 5.3 Snapshot 与 CI 闭环
 
-- [ ] 使用干净、处于锁定 commit 的真实 Concept checkout 验证一次完整 snapshot sync
-- [ ] 确认同步前后 manifest 和文件集合完全一致
+- [x] 使用干净、处于锁定 commit 的真实 Concept checkout 完成 snapshot sync
+- [x] 确认同步后 manifest 和文件集合校验通过
 - [ ] 决定是否固定 Rust toolchain 版本
 - [ ] 决定是否将 GitHub Actions 固定到 commit SHA
-- [ ] 保持所有 Cargo 验收命令使用 `--locked`
+- [x] 保持所有 Cargo 验收命令使用 `--locked`
 
 完成门槛：本地与 CI 执行相同验收链，snapshot 更新只能通过显式、可审查流程发生。
 
@@ -175,33 +185,45 @@ workspace release build: passed
 - [ ] 明确 Rust crate release version 与 Foundation revision 的对应关系
 - [ ] 准备 release checklist
 - [ ] 确认没有未解决的规范空缺
+- [ ] 从干净 checkout 复跑 Concept 与 Core 完整验收链
 - [ ] 清理已合并的远端 Codex 临时分支
 - [ ] 在人工确认后创建 Foundation 对应 tag/release
 
 完成门槛：可以从干净 checkout 离线重现所有 expected outputs，并明确说明已验证和未验证内容。
 
-## 6. Next：冻结数据产品验证准备
+## 6. Next：PiliNara 冻结实验与跨来源验证
 
-只有 Foundation conformance 收口后，才进入本阶段。
+只有 Foundation conformance 收口、实现版本锁定并从干净 checkout 通过验收后，才进入本阶段。
 
-### 6.1 样本集
+### 6.1 PiliNara 导出与样本集
 
-- [ ] 至少 20 条 GitHub 候选
-- [ ] 至少 20 条 RSS 候选
+- [ ] 为 `pilinara-export.v0` 明确独立实验目录或仓库的所有权
+- [ ] 在 PiliNara 独立分支增加仅 Debug、用户显式触发的 allowlist exporter
+- [ ] v0 只读取当前已加载的 App 或 Web 单源模型，不处理合并模式
+- [ ] 至少采集 3 个批次，去重后不少于 40 条、目标 60 条候选
 - [ ] 每个主要字段都有真实使用案例
 - [ ] 每条 Signal 都能回溯到 Evidence
-- [ ] 样本冻结，可重复执行，不依赖实时网络
+- [ ] 公开样本不含凭证、查看者标识或未授权的个性化字段
+- [ ] 样本冻结后可重复执行，不再依赖实时网络
 
 真实样本不得写入锁定的 `tests/spec/v0.1/`。开始前必须决定独立数据目录或独立仓库的所有权和更新规则。
 
-### 6.2 Lens 与人工预期
+### 6.2 Adapter、规则 Analyzer 与 Core 边界
+
+- [ ] 在实验层将 PiliNara export 转换为完整 `RankRequest`
+- [ ] 平台字段只进入 Adapter 或显式 `extensions`，不进入 Core 条件分支
+- [ ] 规则 Analyzer 版本、配置和 Evidence 全部冻结
+- [ ] 使用文件 CLI 生成 FeedSlate，暂不设计 Flutter/Rust FFI
+- [ ] 保存 RankRequest、FeedSlate、Concept lock 和实现版本以供重放
+
+### 6.3 Lens 与人工预期
 
 - [ ] 定义 3 个任务差异明显的 Lens
 - [ ] 每个 Lens 准备人工预期 Top 10
 - [ ] 记录排序理由和争议项
 - [ ] 验证 Lens 切换改变实际筛选结果，而不只是改变文案
 
-### 6.3 Feed Lab 最小实验
+### 6.4 Feed Lab 最小实验
 
 Feed Lab 是第一个产品实验，只消费冻结输入并展示 Core 输出。它不是实时爬虫、AI Demo 或通用 UI 框架。
 
@@ -215,15 +237,26 @@ Feed Lab 是第一个产品实验，只消费冻结输入并展示 Core 输出�
 
 完成门槛：得到可比较的数据和用户反馈，而不是只有视觉演示。
 
+### 6.5 锁定 Concept 的跨来源门槛
+
+当前产品顺序选择 PiliNara/Bilibili 作为第一个 Host 实验，因为 GitHub Host 尚未准备完成。这一顺序只属于非规范产品路线，不改变 Core 契约。
+
+锁定的 Concept 维护者护栏仍记录了至少 20 条 GitHub 与 20 条 RSS 候选的跨来源验证要求。PiliNara 实验不能冒充已经满足该门槛。在宣称 Refetch 已证明来源无关的产品价值前，必须二选一：
+
+1. 补齐 GitHub 与 RSS 冻结样本验证；或
+2. 在 Concept 中通过独立、明确审查的新修订调整该维护者门槛，再显式同步 snapshot。
+
+本路线图不能自行修改或绕过这一约束。
+
 ## 7. Later：验证后才允许进入的方向
 
 以下内容必须建立在 Feed Lab 结果上，不能与 Foundation 并行堆叠：
 
-1. Adapter 契约与 GitHub/RSS Adapter
-2. 规则型 Analyzer
-3. 可选 AI Analyzer
-4. 更多 Lens 编辑与调试工具
-5. PiliPlus 作为第二个 Host 验证
+1. 通过冻结实验门槛后的 PiliNara 最小 Host 原型
+2. GitHub/RSS Adapter 与跨来源验证
+3. 可复用的 Adapter/规则 Analyzer 框架
+4. 可选 AI Analyzer
+5. 更多 Lens 编辑与调试工具
 6. 其他语言实现或 SDK
 
 App Semantic Contract、MCP、AG-UI、A2UI、AppFunctions 和 App Intents 属于上层长期研究，不进入当前 Core 路线图的交付主线。
@@ -235,7 +268,7 @@ App Semantic Contract、MCP、AG-UI、A2UI、AppFunctions 和 App Intents 属于
 - 实时爬虫、平台登录或平台专属 Core 分支
 - 模型调用和 Prompt 框架
 - 云同步、账户、数据库或遥测
-- Flutter/PiliPlus 集成
+- 冻结实验通过前的 Flutter/PiliNara 生产集成
 - WASM、多语言完整 SDK
 - MCP、AG-UI、A2UI 或动态 UI
 - 插件市场
@@ -281,13 +314,20 @@ App Semantic Contract、MCP、AG-UI、A2UI、AppFunctions 和 App Intents 属于
 
 ## 11. 下一项具体工作
 
-在继续增加代码前，先人工审查 `fix/v012-conformance-runner` 当前未提交 diff，并决定拆分方式。推荐审查顺序：
+`fix/v013-conformance-alignment` 已按以下顺序完成本地检查（非维护者最终 diff 审查）：
 
-1. conformance runner 与 15 个 invalid fixtures
-2. `Fixed6` 十进制行为
-3. Schema validation 与 `RankError`
-4. 新增标准解析依赖
-5. snapshot scripts 与 CI
-6. README 版本说明
+1. `SPEC_LOCK`、snapshot 来源与 36 个 invalid fixtures
+2. Candidate、Analysis、Cluster 的 Evidence 引用范围
+3. 跨 Candidate/Analysis 的 Evidence ID 全局唯一性
+4. precision `expectedError` 与 serde 实际失败路径
+5. 三个 valid fixture 的完整 expected FeedSlate
+6. CLI 端到端失败边界与 [`INTEGRATION.md`](INTEGRATION.md)
+7. README 与本路线图的版本说明
 
-审查完成前，不开始 Feed Lab、Adapter、Analyzer、PiliPlus 或 Concept v0.1.3 同步。
+当前仍是未提交工作树；维护者确认最终 diff 并授权提交后，下一项工程工作是 Foundation release readiness：
+
+1. 明确 Rust `0.1.0` 对 Foundation v0.1.3 的支持声明。
+2. 增加 release checklist，并从干净 checkout 重放完整验收链。
+3. 明确 `pilinara-refetch-lab` 的版本控制、样本所有权和维护规则。
+
+在 Foundation release readiness 完成前，不开始实时 Adapter、AI Analyzer、PiliNara FFI 或大型 Feed Lab。随后第一个受控工程增量是 PiliNara Debug allowlist exporter；它仍不能发起新请求、调用 Core 或改变首页行为。
