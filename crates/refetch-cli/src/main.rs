@@ -1,6 +1,6 @@
 use clap::{Parser, Subcommand};
 use refetch_contract::RankRequest;
-use std::{fs, path::PathBuf};
+use std::{fs, path::PathBuf, process::ExitCode};
 #[derive(Parser)]
 struct Cli {
     #[command(subcommand)]
@@ -15,7 +15,17 @@ enum Command {
         output: PathBuf,
     },
 }
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> ExitCode {
+    match run() {
+        Ok(()) => ExitCode::SUCCESS,
+        Err(error) => {
+            eprintln!("{error}");
+            ExitCode::FAILURE
+        }
+    }
+}
+
+fn run() -> Result<(), Box<dyn std::error::Error>> {
     match Cli::parse().command {
         Command::Rank { input, output } => {
             let data = fs::read_to_string(input)?;
