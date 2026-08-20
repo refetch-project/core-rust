@@ -198,9 +198,9 @@ clean checkout acceptance: passed
 
 ### 6.1 PiliNara 导出与样本集
 
-- [ ] 为 `pilinara-export.v0` 明确独立实验目录或仓库的所有权
-- [ ] 在 PiliNara 独立分支增加仅 Debug、用户显式触发的 allowlist exporter
-- [ ] v0 只读取当前已加载的 App 或 Web 单源模型，不处理合并模式
+- [x] 为 `pilinara-export.v0` 明确独立实验目录或仓库的所有权
+- [x] 在 PiliNara 独立分支增加仅 Debug、用户显式触发的 allowlist exporter
+- [x] v0 只读取最近一次成功刷新的 App 或 Web 单源首屏，不处理合并、分页追加或旧数据拼接
 - [ ] 至少采集 3 个批次，去重后不少于 40 条、目标 60 条候选
 - [ ] 每个主要字段都有真实使用案例
 - [ ] 每条 Signal 都能回溯到 Evidence
@@ -304,11 +304,12 @@ Foundation v0.1.3 repository-only 候选已完成 release readiness 和干净 ch
 
 这不代表 crates.io 发布已经就绪。当前 `refetch-core` 与 `refetch-cli` 的 path dependency 缺少发布所需 version requirement，三个 crate 也尚未补齐发布元数据；在决定发布 crate 之前，不为仓库 tag 候选扩大本轮范围。
 
-下一项受控工程增量按以下顺序进行：
+已完成的受控工程增量：
 
-1. 将 `pilinara-refetch-lab` 纳入独立版本控制，明确样本所有权、隐私和维护规则。
-2. 加固 `pilinara-export.v0` validator 与负向回归测试，保证空目录、锁不匹配、位置断裂、隐私矛盾和未知字段不会假绿。
-3. 在 PiliNara 独立分支实现仅 Debug、用户显式触发的 allowlist exporter。
-4. 使用冻结导出验证 Adapter 映射；仍不发起新请求、不调用 Core、不加入 FFI、不改变首页行为。
+1. `pilinara-refetch-lab` 已建立独立本地 Git 历史和维护规则。
+2. `pilinara-export.v0` validator 已覆盖空目录、锁不匹配、位置断裂、隐私矛盾、未知字段、禁止字段和坏 JSON；9 个回归测试通过。
+3. PiliNara 本地分支 `feature/refetch-debug-exporter` 已实现仅 Debug、用户显式触发的 allowlist exporter；相关文件静态分析 0 issue，3 个映射测试通过。
+
+下一项工作不再是继续堆接入代码，而是真实 Host smoke：在 App 或 Web 单源模式完成一次用户触发保存，对导出运行 Schema、锁和隐私验证，并确认首批不少于 20 条。只有该门槛通过后，才采集三个批次并开始冻结 Adapter 映射；仍不发起新请求、不调用 Core、不加入 FFI、不改变 Release 首页行为。
 
 远端临时分支清理、tag、release、push 和 PR 仍需独立授权，不因本地验收通过而自动执行。
