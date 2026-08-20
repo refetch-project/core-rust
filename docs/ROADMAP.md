@@ -90,8 +90,8 @@ Adapter、Analyzer、Feed Lab、Flutter/PiliNara Host 和其他语言实现必�
 | Locked Concept commit | `823c5303246b467fe9425141c1dcbca92537db28` |
 | Foundation revision | `v0.1.3` |
 | Rust workspace version | `0.1.0` |
-| `origin/main` baseline | `bb56de77108d539f2ac443f0540e6c89be5e3293` |
-| 当前工作分支 | `fix/v013-conformance-alignment` |
+| `origin/main` baseline | `ddcd4f056f968a031c04833f24aff72538da119e` |
+| 当前工作分支 | `main`（本地 release readiness） |
 
 版本含义必须分开：
 
@@ -115,7 +115,7 @@ Adapter、Analyzer、Feed Lab、Flutter/PiliNara Host 和其他语言实现必�
 - [x] 未知字段、Schema 约束与 `Fixed6` 六位精度验证
 - [x] snapshot verifier、同步脚本与 locked Cargo 验收链
 
-### 当前工作分支：v0.1.3 规范范围已确认，最终 diff 待人工审查
+### 已进入 `origin/main`：Foundation v0.1.3
 
 - [x] 锁定并同步 Concept Foundation v0.1.3 snapshot
 - [x] 按路径发现并执行恰好 36 个 invalid fixtures
@@ -126,7 +126,7 @@ Adapter、Analyzer、Feed Lab、Flutter/PiliNara Host 和其他语言实现必�
 - [x] CLI 成功、确定性、Schema/语义失败和 malformed JSON 端到端测试
 - [x] 明确 Rust API、CLI、Host、Adapter 与 Analyzer 的接入边界
 
-最近一次本地验证结果（未提交工作树）：
+最近一次完整验证结果：
 
 ```text
 invalid fixtures discovered: 36
@@ -139,7 +139,7 @@ clippy -D warnings: passed
 workspace release build: passed
 ```
 
-这些结果只描述当前工作分支，不代表已经合并、打 tag 或发布。
+这些结果描述已经进入 `origin/main` 的 v0.1.3 Core；操作规范与 release readiness 仍是本地提交，不代表已经打 tag、发布或完成产品验证。
 
 ## 5. Now：Foundation v0.1.3 conformance 收口
 
@@ -156,7 +156,7 @@ workspace release build: passed
 
 完成门槛：审查者能够逐项解释每个行为对应的规范来源，并确认没有为了实现方便修改 Concept snapshot、expected output 或排序算法。
 
-维护者已确认 v0.1.3 的 Evidence 范围、36 个 invalid fixtures、六位精度测试以及锁定 merge commit `823c5303246b467fe9425141c1dcbca92537db28`。上述勾选项表示本地自动化与代理检查完成，不代表维护者已经审查最终 Rust diff。
+维护者已确认 v0.1.3 的 Evidence 范围、36 个 invalid fixtures、六位精度测试以及锁定 merge commit `823c5303246b467fe9425141c1dcbca92537db28`。Core 实现已进入 `origin/main`；这些结论仍不等同于 tag、release 或产品价值验证。
 
 ### 5.2 JSON 与错误边界闭环
 
@@ -174,17 +174,17 @@ workspace release build: passed
 
 - [x] 使用干净、处于锁定 commit 的真实 Concept checkout 完成 snapshot sync
 - [x] 确认同步后 manifest 和文件集合校验通过
-- [ ] 决定是否固定 Rust toolchain 版本
-- [ ] 决定是否将 GitHub Actions 固定到 commit SHA
+- [x] 使用 `rust-toolchain.toml` 固定 Rust `1.97.1`
+- [x] 将 GitHub Actions 固定到经过官方仓库核对的完整 commit SHA
 - [x] 保持所有 Cargo 验收命令使用 `--locked`
 
 完成门槛：本地与 CI 执行相同验收链，snapshot 更新只能通过显式、可审查流程发生。
 
 ### 5.4 Foundation release readiness
 
-- [ ] 明确 Rust crate release version 与 Foundation revision 的对应关系
-- [ ] 准备 release checklist
-- [ ] 确认没有未解决的规范空缺
+- [x] 明确 Rust workspace `0.1.0` 对应 Foundation v0.1.3；本轮不宣称 crates.io 已发布
+- [x] 准备 [`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md)
+- [x] 当前锁定 RFC、fixtures、expected outputs 与实现之间没有已知未解决规范冲突
 - [ ] 从干净 checkout 复跑 Concept 与 Core 完整验收链
 - [ ] 清理已合并的远端 Codex 临时分支
 - [ ] 在人工确认后创建 Foundation 对应 tag/release
