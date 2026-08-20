@@ -2,7 +2,7 @@
 
 > 状态：维护者工作文档（非规范）
 >
-> 最近更新：2026-08-17
+> 最近更新：2026-08-20
 >
 > 适用仓库：`refetch-project/core-rust`
 
@@ -137,6 +137,7 @@ snapshot verification: passed
 fmt: passed
 clippy -D warnings: passed
 workspace release build: passed
+clean checkout acceptance: passed
 ```
 
 这些结果描述已经进入 `origin/main` 的 v0.1.3 Core；操作规范与 release readiness 仍是本地提交，不代表已经打 tag、发布或完成产品验证。
@@ -185,7 +186,7 @@ workspace release build: passed
 - [x] 明确 Rust workspace `0.1.0` 对应 Foundation v0.1.3；本轮不宣称 crates.io 已发布
 - [x] 准备 [`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md)
 - [x] 当前锁定 RFC、fixtures、expected outputs 与实现之间没有已知未解决规范冲突
-- [ ] 从干净 checkout 复跑 Concept 与 Core 完整验收链
+- [x] 从干净 checkout 复跑 Concept 与 Core 完整验收链
 - [ ] 清理已合并的远端 Codex 临时分支
 - [ ] 在人工确认后创建 Foundation 对应 tag/release
 
@@ -299,20 +300,15 @@ App Semantic Contract、MCP、AG-UI、A2UI、AppFunctions 和 App Intents 属于
 
 ## 11. 下一项具体工作
 
-`fix/v013-conformance-alignment` 已按以下顺序完成本地检查（非维护者最终 diff 审查）：
+Foundation v0.1.3 repository-only 候选已完成 release readiness 和干净 checkout 重放：Concept validator 通过 3 个 valid / 36 个 invalid fixtures，52 个锁定 snapshot 文件逐一一致，Rust workspace 36 个测试通过，定向 conformance 明确发现并执行 36/36 个 invalid fixtures。
 
-1. `SPEC_LOCK`、snapshot 来源与 36 个 invalid fixtures
-2. Candidate、Analysis、Cluster 的 Evidence 引用范围
-3. 跨 Candidate/Analysis 的 Evidence ID 全局唯一性
-4. precision `expectedError` 与 serde 实际失败路径
-5. 三个 valid fixture 的完整 expected FeedSlate
-6. CLI 端到端失败边界与 [`INTEGRATION.md`](INTEGRATION.md)
-7. README 与本路线图的版本说明
+这不代表 crates.io 发布已经就绪。当前 `refetch-core` 与 `refetch-cli` 的 path dependency 缺少发布所需 version requirement，三个 crate 也尚未补齐发布元数据；在决定发布 crate 之前，不为仓库 tag 候选扩大本轮范围。
 
-当前仍是未提交工作树；维护者确认最终 diff 并授权提交后，下一项工程工作是 Foundation release readiness：
+下一项受控工程增量按以下顺序进行：
 
-1. 明确 Rust `0.1.0` 对 Foundation v0.1.3 的支持声明。
-2. 增加 release checklist，并从干净 checkout 重放完整验收链。
-3. 明确 `pilinara-refetch-lab` 的版本控制、样本所有权和维护规则。
+1. 将 `pilinara-refetch-lab` 纳入独立版本控制，明确样本所有权、隐私和维护规则。
+2. 加固 `pilinara-export.v0` validator 与负向回归测试，保证空目录、锁不匹配、位置断裂、隐私矛盾和未知字段不会假绿。
+3. 在 PiliNara 独立分支实现仅 Debug、用户显式触发的 allowlist exporter。
+4. 使用冻结导出验证 Adapter 映射；仍不发起新请求、不调用 Core、不加入 FFI、不改变首页行为。
 
-在 Foundation release readiness 完成前，不开始实时 Adapter、AI Analyzer、PiliNara FFI 或大型 Feed Lab。随后第一个受控工程增量是 PiliNara Debug allowlist exporter；它仍不能发起新请求、调用 Core 或改变首页行为。
+远端临时分支清理、tag、release、push 和 PR 仍需独立授权，不因本地验收通过而自动执行。
